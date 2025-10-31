@@ -70,6 +70,16 @@ target_link_libraries(test_real_weights
     CUDA::cudart
 )
 
+# 性能测试
+add_executable(test_performance
+    test/test_performance.cu
+)
+
+target_link_libraries(test_performance
+    tensorrt_llm_fp16_int4_gemm
+    CUDA::cudart
+)
+
 # 打印配置
 message(STATUS "===== Configuration =====")
 message(STATUS "CUDA Toolkit: ${CUDAToolkit_VERSION}")
