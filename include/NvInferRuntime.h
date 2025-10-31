@@ -13,6 +13,7 @@ namespace nvinfer1 {
         kBF16 = 7,
         kINT64 = 8,
         kINT4 = 9,
+        kFP4 = 10,
     };
 
     struct Dims {

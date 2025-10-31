@@ -129,6 +129,19 @@ tensorrt_llm_fp16_int4_gemm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/build.make CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/build
 .PHONY : tensorrt_llm_fp16_int4_gemm/fast
 
+#=============================================================================
+# Target rules for targets named test_simple
+
+# Build rule for target.
+test_simple: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_simple
+.PHONY : test_simple
+
+# fast build rule for target.
+test_simple/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_simple.dir/build.make CMakeFiles/test_simple.dir/build
+.PHONY : test_simple/fast
+
 src/fp16_int4_gemm_kernel.o: src/fp16_int4_gemm_kernel.cu.o
 .PHONY : src/fp16_int4_gemm_kernel.o
 
@@ -153,6 +166,30 @@ src/fp16_int4_gemm_kernel.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/build.make CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.s
 .PHONY : src/fp16_int4_gemm_kernel.cu.s
 
+test/test_simple.o: test/test_simple.cu.o
+.PHONY : test/test_simple.o
+
+# target to build an object file
+test/test_simple.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_simple.dir/build.make CMakeFiles/test_simple.dir/test/test_simple.cu.o
+.PHONY : test/test_simple.cu.o
+
+test/test_simple.i: test/test_simple.cu.i
+.PHONY : test/test_simple.i
+
+# target to preprocess a source file
+test/test_simple.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_simple.dir/build.make CMakeFiles/test_simple.dir/test/test_simple.cu.i
+.PHONY : test/test_simple.cu.i
+
+test/test_simple.s: test/test_simple.cu.s
+.PHONY : test/test_simple.s
+
+# target to generate assembly for a file
+test/test_simple.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_simple.dir/build.make CMakeFiles/test_simple.dir/test/test_simple.cu.s
+.PHONY : test/test_simple.cu.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,9 +199,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... tensorrt_llm_fp16_int4_gemm"
+	@echo "... test_simple"
 	@echo "... src/fp16_int4_gemm_kernel.o"
 	@echo "... src/fp16_int4_gemm_kernel.i"
 	@echo "... src/fp16_int4_gemm_kernel.s"
+	@echo "... test/test_simple.o"
+	@echo "... test/test_simple.i"
+	@echo "... test/test_simple.s"
 .PHONY : help
 
 

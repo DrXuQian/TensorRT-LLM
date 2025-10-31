@@ -42,11 +42,22 @@ add_definitions(-DENABLE_BF16=1)
 # 创建库
 add_library(tensorrt_llm_fp16_int4_gemm SHARED
     src/fp16_int4_gemm_kernel.cu
+    src/missing_implementations.cpp
 )
 
 target_link_libraries(tensorrt_llm_fp16_int4_gemm
     CUDA::cudart
     CUDA::cuda_driver
+)
+
+# 测试程序
+add_executable(test_simple
+    test/test_simple.cu
+)
+
+target_link_libraries(test_simple
+    tensorrt_llm_fp16_int4_gemm
+    CUDA::cudart
 )
 
 # 打印配置

@@ -428,13 +428,13 @@ void CutlassFpAIntBGemmRunner<ActivationType, WeightType, QuantOp, ScaleZeroType
             QuantOp, EpilogueTag>(A, B, weight_scales, weight_zero_points, biases, alpha, C, m, n, k, group_size,
             workspace_ptr, workspace_bytes, gemm_config, stream, occupancy);
     }
-    else if ((sm_ >= 80 && sm_ < 89) || sm_ >= 100)
+    else if ((sm_ >= 80 && sm_ < 89))
     {
         dispatch_gemm_to_cutlass<ActivationType, WeightType, ScaleZeroType, BiasType, OutputType, cutlass::arch::Sm80,
             QuantOp, EpilogueTag>(A, B, weight_scales, weight_zero_points, biases, alpha, C, m, n, k, group_size,
             workspace_ptr, workspace_bytes, gemm_config, stream, occupancy);
     }
-    else if (sm_ == 89)
+    else if (sm_ == 89 || sm_ >= 100)  // Treat SM100+ (including SM120) as SM89 for forward compatibility
     {
 #if ENABLE_FP8 && ((__CUDACC_VER_MAJOR__ < 12) || (__CUDACC_VER_MAJOR__ == 12 && __CUDACC_VER_MINOR__ < 4))
         if constexpr (cutlass::platform::is_same<ActivationType, __nv_fp8_e4m3>::value)
@@ -450,12 +450,10 @@ void CutlassFpAIntBGemmRunner<ActivationType, WeightType, QuantOp, ScaleZeroType
     }
     else if (sm_ == 90)
     {
-        static_assert(!cutlass::platform::is_same<ActivationType, __nv_fp8_e4m3>::value
-                || cutlass::platform::is_same<ScaleZeroType, half>::value,
-            "ScaleZeroType must be half for activation=fp8");
-        cutlass_kernels_oss::sm90_dispatch_gemm_to_cutlass<ActivationType, WeightType, ScaleZeroType, BiasType,
-            OutputType, QuantOp, EpilogueTag>(A, B, weight_scales, weight_zero_points, biases, alpha, C, m, n, k,
-            group_size, workspace_ptr, workspace_bytes, gemm_config, stream, occupancy);
+        // SM90 not supported in this extraction
+        throw std::runtime_error(
+            "[TensorRT LLM Error][CutlassFpAIntBGemmRunner][dispatch_to_arch] SM90 not supported in this extraction. "
+            "Please use SM89 or below.");
     }
     else
     {

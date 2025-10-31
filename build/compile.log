@@ -1,0 +1,18 @@
+[ 50%] Building CUDA object CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.o
+nvcc warning : Support for offline compilation for architectures prior to '<compute/sm/lto>_75' will be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
+/home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/src/../include/tensorrt_llm/kernels/cutlass_kernels/cutlass_type_conversion.h(67): error: enum "nvinfer1::DataType" has no member "kFP4"
+  struct CutlassType<nvinfer1::DataType::kFP4>
+                                         ^
+
+/home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/src/../include/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/fpA_intB_gemm.h(46): error: class "tensorrt_llm::kernels::cutlass_kernels::CutlassFpAIntBGemmRunnerInterface" has already been defined (previous definition at line 46 of /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/src/../include/fpA_intB_gemm.h)
+  class CutlassFpAIntBGemmRunnerInterface
+        ^
+
+/home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/src/../include/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/fpA_intB_gemm.h(88): error: class template "tensorrt_llm::kernels::cutlass_kernels::CutlassFpAIntBGemmRunner" has already been defined (previous definition at line 86 of /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/src/../include/fpA_intB_gemm.h)
+  class CutlassFpAIntBGemmRunner : public virtual CutlassFpAIntBGemmRunnerInterface
+        ^
+
+3 errors detected in the compilation of "/home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/src/fp16_int4_gemm_kernel.cu".
+make[2]: *** [CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/build.make:76: CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.o] Error 2
+make[1]: *** [CMakeFiles/Makefile2:83: CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
