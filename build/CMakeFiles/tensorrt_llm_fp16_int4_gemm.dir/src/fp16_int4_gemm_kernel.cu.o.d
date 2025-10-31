@@ -753,18 +753,39 @@ CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.o : /hom
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/matrix_coord.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/pitch_linear_coord.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/wmma.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/epilogue.h \
-    /usr/local/cuda-12.8/include/cuda/std/cassert \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/layout/vector.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/layout/tensor.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/layout/pitch_linear.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/tensor_coord.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/aligned_buffer.h \
+    /usr/local/cuda-12.8/include/mma.h \
+    /usr/local/cuda-12.8/include/crt/mma.h \
+    /usr/local/cuda-12.8/include/crt/mma.hpp \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/gemm.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm_coord.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/gemm_enumerated_types.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/detail/layout.hpp \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/layout/tensor.h \
+    /usr/local/cuda-12.8/include/cuda/std/cassert \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/layout/pitch_linear.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/tensor_coord.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/detail/collective.hpp \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/arch.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm50.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/quaternion.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/matrix.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/layout/vector.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm60.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm61.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm70.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm75.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/wmma_array.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm80.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sparse_sm80.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm89.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sparse_sm89.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm90.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/wmma_sm70.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/wmma_sm72.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/wmma_sm75.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/epilogue.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/aligned_buffer.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/transform/pitch_linear_thread_map.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/predicate_vector.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/tensor_ref.h \
@@ -775,11 +796,9 @@ CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.o : /hom
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/matrix_shape.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/epilogue_base_streamk.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/block_striped.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/wmma_array.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/predicated_tile_iterator.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/layout/permute.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/output_tile_thread_map.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/arch.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/memory.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/cache_operation.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/memory_sm75.h \
@@ -807,19 +826,6 @@ CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.o : /hom
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/transform/threadblock/regular_tile_access_iterator.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/default_mma_tensor_op.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/mma_tensor_op.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm75.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm50.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/quaternion.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/matrix.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm60.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm61.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm70.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm80.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sparse_sm80.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm89.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sparse_sm89.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/mma_sm90.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/mma.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/mma_tensor_op_policy.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/mma_tensor_op_tile_iterator.h \
@@ -867,6 +873,9 @@ CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.o : /hom
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/threadblock/default_mma_core_simt.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/transform/threadblock/regular_tile_iterator_pitch_linear.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/transform/threadblock/regular_tile_iterator_pitch_linear_2dthreadtile.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/threadblock/default_mma_core_wmma.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/mma_tensor_op_wmma.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/mma_tensor_op_tile_iterator_wmma.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/threadblock/threadblock_swizzle.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/threadblock/index_remat.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/threadblock/threadblock_swizzle_streamk.h \
@@ -910,6 +919,11 @@ CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.o : /hom
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/predicated_tile_iterator_direct_conv.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/shared_load_iterator_pitch_linear.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/epilogue_depthwise.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/default_epilogue_wmma_tensor_op.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/warp/fragment_iterator_wmma_tensor_op.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/warp/wmma_tensor_op_policy.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/warp/tile_iterator_wmma_tensor_op.h \
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/default_thread_map_wmma_tensor_op.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/include/cutlass_extensions/include/cutlass_extensions/compute_occupancy.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/device_kernel.h \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/include/tensorrt_llm/common/cudaUtils.h \
@@ -1045,17 +1059,4 @@ CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.o : /hom
     /usr/local/cuda-12.8/include/cuda_fp6.hpp \
     /usr/local/cuda-12.8/include/cuda_fp4.hpp \
     /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/include/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/fpA_intB_gemm_template_sm90.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/include/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/launchers/fpA_intB_launcher_sm90.h \
-    /usr/local/cuda-12.8/include/mma.h \
-    /usr/local/cuda-12.8/include/crt/mma.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/wmma_sm70.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/wmma_sm72.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/arch/wmma_sm75.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/threadblock/default_mma_core_wmma.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/mma_tensor_op_wmma.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/gemm/warp/mma_tensor_op_tile_iterator_wmma.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/default_epilogue_wmma_tensor_op.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/warp/fragment_iterator_wmma_tensor_op.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/warp/wmma_tensor_op_policy.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/warp/tile_iterator_wmma_tensor_op.h \
-    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/../3rdparty/cutlass/include/cutlass/epilogue/threadblock/default_thread_map_wmma_tensor_op.h
+    /home/qianxu/TensorRT-LLM/extracted_fp16_int4_gemm/include/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/launchers/fpA_intB_launcher_sm90.h

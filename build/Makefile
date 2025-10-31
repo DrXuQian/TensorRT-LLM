@@ -142,6 +142,19 @@ test_simple/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_simple.dir/build.make CMakeFiles/test_simple.dir/build
 .PHONY : test_simple/fast
 
+#=============================================================================
+# Target rules for targets named test_real_weights
+
+# Build rule for target.
+test_real_weights: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_real_weights
+.PHONY : test_real_weights
+
+# fast build rule for target.
+test_real_weights/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_real_weights.dir/build.make CMakeFiles/test_real_weights.dir/build
+.PHONY : test_real_weights/fast
+
 src/fp16_int4_gemm_kernel.o: src/fp16_int4_gemm_kernel.cu.o
 .PHONY : src/fp16_int4_gemm_kernel.o
 
@@ -165,6 +178,54 @@ src/fp16_int4_gemm_kernel.s: src/fp16_int4_gemm_kernel.cu.s
 src/fp16_int4_gemm_kernel.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/build.make CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/fp16_int4_gemm_kernel.cu.s
 .PHONY : src/fp16_int4_gemm_kernel.cu.s
+
+src/missing_implementations.o: src/missing_implementations.cpp.o
+.PHONY : src/missing_implementations.o
+
+# target to build an object file
+src/missing_implementations.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/build.make CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/missing_implementations.cpp.o
+.PHONY : src/missing_implementations.cpp.o
+
+src/missing_implementations.i: src/missing_implementations.cpp.i
+.PHONY : src/missing_implementations.i
+
+# target to preprocess a source file
+src/missing_implementations.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/build.make CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/missing_implementations.cpp.i
+.PHONY : src/missing_implementations.cpp.i
+
+src/missing_implementations.s: src/missing_implementations.cpp.s
+.PHONY : src/missing_implementations.s
+
+# target to generate assembly for a file
+src/missing_implementations.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/build.make CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/src/missing_implementations.cpp.s
+.PHONY : src/missing_implementations.cpp.s
+
+test/test_real_weights.o: test/test_real_weights.cu.o
+.PHONY : test/test_real_weights.o
+
+# target to build an object file
+test/test_real_weights.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_real_weights.dir/build.make CMakeFiles/test_real_weights.dir/test/test_real_weights.cu.o
+.PHONY : test/test_real_weights.cu.o
+
+test/test_real_weights.i: test/test_real_weights.cu.i
+.PHONY : test/test_real_weights.i
+
+# target to preprocess a source file
+test/test_real_weights.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_real_weights.dir/build.make CMakeFiles/test_real_weights.dir/test/test_real_weights.cu.i
+.PHONY : test/test_real_weights.cu.i
+
+test/test_real_weights.s: test/test_real_weights.cu.s
+.PHONY : test/test_real_weights.s
+
+# target to generate assembly for a file
+test/test_real_weights.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_real_weights.dir/build.make CMakeFiles/test_real_weights.dir/test/test_real_weights.cu.s
+.PHONY : test/test_real_weights.cu.s
 
 test/test_simple.o: test/test_simple.cu.o
 .PHONY : test/test_simple.o
@@ -199,10 +260,17 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... tensorrt_llm_fp16_int4_gemm"
+	@echo "... test_real_weights"
 	@echo "... test_simple"
 	@echo "... src/fp16_int4_gemm_kernel.o"
 	@echo "... src/fp16_int4_gemm_kernel.i"
 	@echo "... src/fp16_int4_gemm_kernel.s"
+	@echo "... src/missing_implementations.o"
+	@echo "... src/missing_implementations.i"
+	@echo "... src/missing_implementations.s"
+	@echo "... test/test_real_weights.o"
+	@echo "... test/test_real_weights.i"
+	@echo "... test/test_real_weights.s"
 	@echo "... test/test_simple.o"
 	@echo "... test/test_simple.i"
 	@echo "... test/test_simple.s"

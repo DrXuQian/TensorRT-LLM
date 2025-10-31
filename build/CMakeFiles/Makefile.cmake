@@ -52,4 +52,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/tensorrt_llm_fp16_int4_gemm.dir/DependInfo.cmake"
   "CMakeFiles/test_simple.dir/DependInfo.cmake"
+  "CMakeFiles/test_real_weights.dir/DependInfo.cmake"
   )
