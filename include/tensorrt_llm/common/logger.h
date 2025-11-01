@@ -3,6 +3,12 @@
 #include <string>
 #include <cstdarg>
 
+// Define logging macros
+#define TLLM_LOG_DEBUG(...) ((void)0)
+#define TLLM_LOG_INFO(...) ((void)0)
+#define TLLM_LOG_WARNING(...) ((void)0)
+#define TLLM_LOG_ERROR(...) ((void)0)
+
 namespace tensorrt_llm {
 namespace common {
 
