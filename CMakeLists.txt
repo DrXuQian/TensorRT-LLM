@@ -42,6 +42,7 @@ add_definitions(-DENABLE_BF16=1)
 # Create library
 add_library(trt_llm_fp16_int4_gemm SHARED
     src/fp16_int4_gemm_kernel.cu
+    src/missing_implementations.cpp
 )
 
 target_link_libraries(trt_llm_fp16_int4_gemm
