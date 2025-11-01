@@ -45,5 +45,12 @@ inline void sync_check_cuda_error() {
     }
 }
 
+inline void check_cuda_error(cudaError_t error) {
+    if (error != cudaSuccess) {
+        std::cerr << "CUDA error: " << cudaGetErrorString(error) << std::endl;
+        exit(1);
+    }
+}
+
 } // namespace common
 } // namespace tensorrt_llm
