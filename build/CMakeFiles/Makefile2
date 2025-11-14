@@ -83,12 +83,12 @@ clean: CMakeFiles/test_w4a16_sm90.dir/clean
 CMakeFiles/w4a16_sm90_kernel.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=4,5,6 "Built target w4a16_sm90_kernel"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=4,5,6,7,8,9,10 "Built target w4a16_sm90_kernel"
 .PHONY : CMakeFiles/w4a16_sm90_kernel.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/w4a16_sm90_kernel.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles 7
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/w4a16_sm90_kernel.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles 0
 .PHONY : CMakeFiles/w4a16_sm90_kernel.dir/rule
@@ -106,7 +106,7 @@ CMakeFiles/w4a16_sm90_kernel.dir/clean:
 # Target rules for target CMakeFiles/test_w4a16_sm90.dir
 
 # All Build rule for target.
-CMakeFiles/test_w4a16_sm90.dir/all:
+CMakeFiles/test_w4a16_sm90.dir/all: CMakeFiles/w4a16_sm90_kernel.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=1,2,3 "Built target test_w4a16_sm90"
@@ -114,7 +114,7 @@ CMakeFiles/test_w4a16_sm90.dir/all:
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_w4a16_sm90.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_w4a16_sm90.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles 0
 .PHONY : CMakeFiles/test_w4a16_sm90.dir/rule

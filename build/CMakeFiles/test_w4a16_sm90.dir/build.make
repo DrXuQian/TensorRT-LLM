@@ -69,29 +69,30 @@ include CMakeFiles/test_w4a16_sm90.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/test_w4a16_sm90.dir/flags.make
 
-CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o: CMakeFiles/test_w4a16_sm90.dir/flags.make
-CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o: ../src/w4a16_sm90_kernel.cu
-CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o: CMakeFiles/test_w4a16_sm90.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CUDA object CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o"
-	/usr/local/cuda-12.8/bin/nvcc -forward-unknown-to-host-compiler $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -MD -MT CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o -MF CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o.d -x cu -dc /home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu -o CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o
+CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o: CMakeFiles/test_w4a16_sm90.dir/flags.make
+CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o: ../src/test_main.cu
+CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o: CMakeFiles/test_w4a16_sm90.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CUDA object CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o"
+	/usr/local/cuda-12.8/bin/nvcc -forward-unknown-to-host-compiler $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -MD -MT CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o -MF CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o.d -x cu -dc /home/qianxu/trt_llm_w4a16_hopper/src/test_main.cu -o CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o
 
-CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CUDA source to CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.i"
+CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CUDA source to CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.i"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE
 
-CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.s"
+CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
 
 # Object files for target test_w4a16_sm90
 test_w4a16_sm90_OBJECTS = \
-"CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o"
+"CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o"
 
 # External object files for target test_w4a16_sm90
 test_w4a16_sm90_EXTERNAL_OBJECTS =
 
-CMakeFiles/test_w4a16_sm90.dir/cmake_device_link.o: CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o
+CMakeFiles/test_w4a16_sm90.dir/cmake_device_link.o: CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o
 CMakeFiles/test_w4a16_sm90.dir/cmake_device_link.o: CMakeFiles/test_w4a16_sm90.dir/build.make
+CMakeFiles/test_w4a16_sm90.dir/cmake_device_link.o: lib/libw4a16_sm90_kernel.so
 CMakeFiles/test_w4a16_sm90.dir/cmake_device_link.o: /usr/local/cuda-12.8/lib64/libcudart.so
 CMakeFiles/test_w4a16_sm90.dir/cmake_device_link.o: CMakeFiles/test_w4a16_sm90.dir/dlink.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CUDA device code CMakeFiles/test_w4a16_sm90.dir/cmake_device_link.o"
@@ -103,13 +104,14 @@ CMakeFiles/test_w4a16_sm90.dir/build: CMakeFiles/test_w4a16_sm90.dir/cmake_devic
 
 # Object files for target test_w4a16_sm90
 test_w4a16_sm90_OBJECTS = \
-"CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o"
+"CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o"
 
 # External object files for target test_w4a16_sm90
 test_w4a16_sm90_EXTERNAL_OBJECTS =
 
-bin/test_w4a16_sm90: CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o
+bin/test_w4a16_sm90: CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o
 bin/test_w4a16_sm90: CMakeFiles/test_w4a16_sm90.dir/build.make
+bin/test_w4a16_sm90: lib/libw4a16_sm90_kernel.so
 bin/test_w4a16_sm90: /usr/local/cuda-12.8/lib64/libcudart.so
 bin/test_w4a16_sm90: CMakeFiles/test_w4a16_sm90.dir/cmake_device_link.o
 bin/test_w4a16_sm90: CMakeFiles/test_w4a16_sm90.dir/link.txt

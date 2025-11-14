@@ -8,11 +8,12 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu" "CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o" "gcc" "CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o.d"
+  "/home/qianxu/trt_llm_w4a16_hopper/src/test_main.cu" "CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o" "gcc" "CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o.d"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
+  "/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles/w4a16_sm90_kernel.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

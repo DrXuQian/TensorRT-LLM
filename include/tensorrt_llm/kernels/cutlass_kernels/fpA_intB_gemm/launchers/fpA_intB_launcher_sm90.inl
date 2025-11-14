@@ -30,11 +30,11 @@
 
 #include "cutlass/util/packed_stride.hpp"
 
-#include "cutlass_extensions/compute_occupancy.h"
-#include "cutlass_extensions/epilogue_helpers.h"
-#include "cutlass_extensions/gemm_configs.h"
+#include "tensorrt_llm/cutlass_extensions/include/cutlass_extensions/compute_occupancy.h"
+#include "tensorrt_llm/cutlass_extensions/include/cutlass_extensions/epilogue_helpers.h"
+#include "tensorrt_llm/cutlass_extensions/include/cutlass_extensions/gemm_configs.h"
 
-#include "cutlass_extensions/gemm/collective/collective_builder_interleaved.hpp"
+#include "tensorrt_llm/cutlass_extensions/include/cutlass_extensions/gemm/collective/collective_builder_interleaved.hpp"
 
 #ifdef __GNUC__ // Check if the compiler is GCC or Clang
 #pragma GCC diagnostic pop

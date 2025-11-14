@@ -4,7 +4,7 @@
 # compile CUDA with /usr/local/cuda-12.8/bin/nvcc
 CUDA_DEFINES = -DCOMPILE_HOPPER_TMA_GEMMS
 
-CUDA_INCLUDES = -I/home/qianxu/trt_llm_w4a16_hopper/include -I/home/qianxu/cutlass/include -isystem=/usr/local/cuda-12.8/include
+CUDA_INCLUDES = -I/home/qianxu/trt_llm_w4a16_hopper/include -I/home/qianxu/trt_llm_w4a16_hopper/include/tensorrt_llm/cutlass_extensions/include -I/home/qianxu/TensorRT-LLM/3rdparty/cutlass/include -I/home/qianxu/TensorRT-LLM/3rdparty/cutlass/tools/util/include -isystem=/usr/local/cuda-12.8/include
 
-CUDA_FLAGS =  -Xcompiler=-fPIC -Xcompiler=-Wall --expt-relaxed-constexpr --expt-extended-lambda -Xcudafe --diag_suppress=186 -O3 -DNDEBUG -O3 -lineinfo --generate-code=arch=compute_90,code=[compute_90,sm_90] -std=c++17
+CUDA_FLAGS =  -Xcompiler=-fPIC -Xcompiler=-Wall --expt-relaxed-constexpr --expt-extended-lambda -Xcudafe --diag_suppress=186 --generate-code=arch=compute_90,code=[compute_90,sm_90] -std=c++17
 

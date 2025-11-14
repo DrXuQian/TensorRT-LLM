@@ -16,15 +16,17 @@ set(CMAKE_CUDA_ARCHITECTURES 90)
 # Add compile definitions for Hopper TMA GEMM support
 add_definitions(-DCOMPILE_HOPPER_TMA_GEMMS)
 
-# CUTLASS path - you may need to adjust this
+# CUTLASS path - using TensorRT-LLM's bundled CUTLASS
 if(NOT DEFINED CUTLASS_DIR)
-    set(CUTLASS_DIR "/usr/local/include/cutlass" CACHE PATH "Path to CUTLASS library")
+    set(CUTLASS_DIR "/home/qianxu/TensorRT-LLM/3rdparty/cutlass" CACHE PATH "Path to CUTLASS library")
 endif()
 
 # Include directories
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/tensorrt_llm/cutlass_extensions/include
     ${CUTLASS_DIR}/include
+    ${CUTLASS_DIR}/tools/util/include
     ${CUDAToolkit_INCLUDE_DIRS}
 )
 
@@ -42,6 +44,10 @@ set(CMAKE_CUDA_FLAGS_RELEASE "${CMAKE_CUDA_FLAGS_RELEASE} -O3 -lineinfo")
 # Build the W4A16 SM90 kernel library
 add_library(w4a16_sm90_kernel SHARED
     src/w4a16_sm90_kernel.cu
+    src/logger.cpp
+    src/stringUtils.cpp
+    src/assert.cpp
+    src/tllmException.cpp
 )
 
 target_link_libraries(w4a16_sm90_kernel
@@ -58,10 +64,11 @@ set_target_properties(w4a16_sm90_kernel PROPERTIES
 
 # Optional: Create a simple test executable
 add_executable(test_w4a16_sm90
-    src/w4a16_sm90_kernel.cu
+    src/test_main.cu
 )
 
 target_link_libraries(test_w4a16_sm90
+    w4a16_sm90_kernel
     CUDA::cudart
 )
 

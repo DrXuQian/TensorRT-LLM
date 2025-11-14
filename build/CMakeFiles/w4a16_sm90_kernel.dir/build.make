@@ -83,18 +83,82 @@ CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
 
+CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o: CMakeFiles/w4a16_sm90_kernel.dir/flags.make
+CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o: ../src/logger.cpp
+CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o: CMakeFiles/w4a16_sm90_kernel.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o -MF CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o.d -o CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o -c /home/qianxu/trt_llm_w4a16_hopper/src/logger.cpp
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/qianxu/trt_llm_w4a16_hopper/src/logger.cpp > CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.i
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/qianxu/trt_llm_w4a16_hopper/src/logger.cpp -o CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.s
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o: CMakeFiles/w4a16_sm90_kernel.dir/flags.make
+CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o: ../src/stringUtils.cpp
+CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o: CMakeFiles/w4a16_sm90_kernel.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o -MF CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o.d -o CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o -c /home/qianxu/trt_llm_w4a16_hopper/src/stringUtils.cpp
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/qianxu/trt_llm_w4a16_hopper/src/stringUtils.cpp > CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.i
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/qianxu/trt_llm_w4a16_hopper/src/stringUtils.cpp -o CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.s
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o: CMakeFiles/w4a16_sm90_kernel.dir/flags.make
+CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o: ../src/assert.cpp
+CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o: CMakeFiles/w4a16_sm90_kernel.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o -MF CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o.d -o CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o -c /home/qianxu/trt_llm_w4a16_hopper/src/assert.cpp
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/qianxu/trt_llm_w4a16_hopper/src/assert.cpp > CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.i
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/qianxu/trt_llm_w4a16_hopper/src/assert.cpp -o CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.s
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o: CMakeFiles/w4a16_sm90_kernel.dir/flags.make
+CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o: ../src/tllmException.cpp
+CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o: CMakeFiles/w4a16_sm90_kernel.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o -MF CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o.d -o CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o -c /home/qianxu/trt_llm_w4a16_hopper/src/tllmException.cpp
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/qianxu/trt_llm_w4a16_hopper/src/tllmException.cpp > CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.i
+
+CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/qianxu/trt_llm_w4a16_hopper/src/tllmException.cpp -o CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.s
+
 # Object files for target w4a16_sm90_kernel
 w4a16_sm90_kernel_OBJECTS = \
-"CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o"
+"CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o" \
+"CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o" \
+"CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o" \
+"CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o" \
+"CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o"
 
 # External object files for target w4a16_sm90_kernel
 w4a16_sm90_kernel_EXTERNAL_OBJECTS =
 
 CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o: CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o
+CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o: CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o
+CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o: CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o
+CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o: CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o
+CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o: CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o
 CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o: CMakeFiles/w4a16_sm90_kernel.dir/build.make
 CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o: /usr/local/cuda-12.8/lib64/libcudart.so
 CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o: CMakeFiles/w4a16_sm90_kernel.dir/dlink.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CUDA device code CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CUDA device code CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/w4a16_sm90_kernel.dir/dlink.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -103,17 +167,25 @@ CMakeFiles/w4a16_sm90_kernel.dir/build: CMakeFiles/w4a16_sm90_kernel.dir/cmake_d
 
 # Object files for target w4a16_sm90_kernel
 w4a16_sm90_kernel_OBJECTS = \
-"CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o"
+"CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o" \
+"CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o" \
+"CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o" \
+"CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o" \
+"CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o"
 
 # External object files for target w4a16_sm90_kernel
 w4a16_sm90_kernel_EXTERNAL_OBJECTS =
 
 lib/libw4a16_sm90_kernel.so: CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o
+lib/libw4a16_sm90_kernel.so: CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o
+lib/libw4a16_sm90_kernel.so: CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o
+lib/libw4a16_sm90_kernel.so: CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o
+lib/libw4a16_sm90_kernel.so: CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o
 lib/libw4a16_sm90_kernel.so: CMakeFiles/w4a16_sm90_kernel.dir/build.make
 lib/libw4a16_sm90_kernel.so: /usr/local/cuda-12.8/lib64/libcudart.so
 lib/libw4a16_sm90_kernel.so: CMakeFiles/w4a16_sm90_kernel.dir/cmake_device_link.o
 lib/libw4a16_sm90_kernel.so: CMakeFiles/w4a16_sm90_kernel.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CUDA shared library lib/libw4a16_sm90_kernel.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX shared library lib/libw4a16_sm90_kernel.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/w4a16_sm90_kernel.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

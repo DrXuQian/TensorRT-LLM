@@ -142,13 +142,132 @@ test_w4a16_sm90/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/build
 .PHONY : test_w4a16_sm90/fast
 
+src/assert.o: src/assert.cpp.o
+.PHONY : src/assert.o
+
+# target to build an object file
+src/assert.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.o
+.PHONY : src/assert.cpp.o
+
+src/assert.i: src/assert.cpp.i
+.PHONY : src/assert.i
+
+# target to preprocess a source file
+src/assert.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.i
+.PHONY : src/assert.cpp.i
+
+src/assert.s: src/assert.cpp.s
+.PHONY : src/assert.s
+
+# target to generate assembly for a file
+src/assert.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.s
+.PHONY : src/assert.cpp.s
+
+src/logger.o: src/logger.cpp.o
+.PHONY : src/logger.o
+
+# target to build an object file
+src/logger.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.o
+.PHONY : src/logger.cpp.o
+
+src/logger.i: src/logger.cpp.i
+.PHONY : src/logger.i
+
+# target to preprocess a source file
+src/logger.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.i
+.PHONY : src/logger.cpp.i
+
+src/logger.s: src/logger.cpp.s
+.PHONY : src/logger.s
+
+# target to generate assembly for a file
+src/logger.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.s
+.PHONY : src/logger.cpp.s
+
+src/stringUtils.o: src/stringUtils.cpp.o
+.PHONY : src/stringUtils.o
+
+# target to build an object file
+src/stringUtils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.o
+.PHONY : src/stringUtils.cpp.o
+
+src/stringUtils.i: src/stringUtils.cpp.i
+.PHONY : src/stringUtils.i
+
+# target to preprocess a source file
+src/stringUtils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.i
+.PHONY : src/stringUtils.cpp.i
+
+src/stringUtils.s: src/stringUtils.cpp.s
+.PHONY : src/stringUtils.s
+
+# target to generate assembly for a file
+src/stringUtils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/stringUtils.cpp.s
+.PHONY : src/stringUtils.cpp.s
+
+src/test_main.o: src/test_main.cu.o
+.PHONY : src/test_main.o
+
+# target to build an object file
+src/test_main.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.o
+.PHONY : src/test_main.cu.o
+
+src/test_main.i: src/test_main.cu.i
+.PHONY : src/test_main.i
+
+# target to preprocess a source file
+src/test_main.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.i
+.PHONY : src/test_main.cu.i
+
+src/test_main.s: src/test_main.cu.s
+.PHONY : src/test_main.s
+
+# target to generate assembly for a file
+src/test_main.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.s
+.PHONY : src/test_main.cu.s
+
+src/tllmException.o: src/tllmException.cpp.o
+.PHONY : src/tllmException.o
+
+# target to build an object file
+src/tllmException.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.o
+.PHONY : src/tllmException.cpp.o
+
+src/tllmException.i: src/tllmException.cpp.i
+.PHONY : src/tllmException.i
+
+# target to preprocess a source file
+src/tllmException.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.i
+.PHONY : src/tllmException.cpp.i
+
+src/tllmException.s: src/tllmException.cpp.s
+.PHONY : src/tllmException.s
+
+# target to generate assembly for a file
+src/tllmException.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/tllmException.cpp.s
+.PHONY : src/tllmException.cpp.s
+
 src/w4a16_sm90_kernel.o: src/w4a16_sm90_kernel.cu.o
 .PHONY : src/w4a16_sm90_kernel.o
 
 # target to build an object file
 src/w4a16_sm90_kernel.cu.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o
 .PHONY : src/w4a16_sm90_kernel.cu.o
 
 src/w4a16_sm90_kernel.i: src/w4a16_sm90_kernel.cu.i
@@ -157,7 +276,6 @@ src/w4a16_sm90_kernel.i: src/w4a16_sm90_kernel.cu.i
 # target to preprocess a source file
 src/w4a16_sm90_kernel.cu.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.i
 .PHONY : src/w4a16_sm90_kernel.cu.i
 
 src/w4a16_sm90_kernel.s: src/w4a16_sm90_kernel.cu.s
@@ -166,7 +284,6 @@ src/w4a16_sm90_kernel.s: src/w4a16_sm90_kernel.cu.s
 # target to generate assembly for a file
 src/w4a16_sm90_kernel.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.s
 .PHONY : src/w4a16_sm90_kernel.cu.s
 
 # Help Target
@@ -179,6 +296,21 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test_w4a16_sm90"
 	@echo "... w4a16_sm90_kernel"
+	@echo "... src/assert.o"
+	@echo "... src/assert.i"
+	@echo "... src/assert.s"
+	@echo "... src/logger.o"
+	@echo "... src/logger.i"
+	@echo "... src/logger.s"
+	@echo "... src/stringUtils.o"
+	@echo "... src/stringUtils.i"
+	@echo "... src/stringUtils.s"
+	@echo "... src/test_main.o"
+	@echo "... src/test_main.i"
+	@echo "... src/test_main.s"
+	@echo "... src/tllmException.o"
+	@echo "... src/tllmException.i"
+	@echo "... src/tllmException.s"
 	@echo "... src/w4a16_sm90_kernel.o"
 	@echo "... src/w4a16_sm90_kernel.i"
 	@echo "... src/w4a16_sm90_kernel.s"

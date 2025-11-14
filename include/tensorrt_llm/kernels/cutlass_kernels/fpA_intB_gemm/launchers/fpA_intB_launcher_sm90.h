@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "cutlass_extensions/gemm_configs.h"
-#include "cutlass_extensions/weight_only_quant_op.h"
+#include "tensorrt_llm/cutlass_extensions/include/cutlass_extensions/gemm_configs.h"
+#include "tensorrt_llm/cutlass_extensions/include/cutlass_extensions/weight_only_quant_op.h"
 #include <cuda_runtime_api.h>
 
 namespace tensorrt_llm
