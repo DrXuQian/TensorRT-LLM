@@ -92,6 +92,36 @@ set_target_properties(benchmark_w4a16_sm90 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
+# Debug executable to check kernel execution
+add_executable(debug_w4a16_sm90
+    src/debug_kernel.cu
+)
+
+target_link_libraries(debug_w4a16_sm90
+    w4a16_sm90_kernel
+    CUDA::cudart
+)
+
+set_target_properties(debug_w4a16_sm90 PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+# Simple test executable
+add_executable(simple_test_sm90
+    src/simple_test.cu
+)
+
+target_link_libraries(simple_test_sm90
+    w4a16_sm90_kernel
+    CUDA::cudart
+)
+
+set_target_properties(simple_test_sm90 PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
 # Print configuration info
 message(STATUS "CUDA Architectures: ${CMAKE_CUDA_ARCHITECTURES}")
 message(STATUS "CUTLASS Directory: ${CUTLASS_DIR}")

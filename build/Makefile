@@ -155,6 +155,32 @@ benchmark_w4a16_sm90/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/build
 .PHONY : benchmark_w4a16_sm90/fast
 
+#=============================================================================
+# Target rules for targets named debug_w4a16_sm90
+
+# Build rule for target.
+debug_w4a16_sm90: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 debug_w4a16_sm90
+.PHONY : debug_w4a16_sm90
+
+# fast build rule for target.
+debug_w4a16_sm90/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/debug_w4a16_sm90.dir/build.make CMakeFiles/debug_w4a16_sm90.dir/build
+.PHONY : debug_w4a16_sm90/fast
+
+#=============================================================================
+# Target rules for targets named simple_test_sm90
+
+# Build rule for target.
+simple_test_sm90: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 simple_test_sm90
+.PHONY : simple_test_sm90
+
+# fast build rule for target.
+simple_test_sm90/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_test_sm90.dir/build.make CMakeFiles/simple_test_sm90.dir/build
+.PHONY : simple_test_sm90/fast
+
 src/assert.o: src/assert.cpp.o
 .PHONY : src/assert.o
 
@@ -203,6 +229,30 @@ src/benchmark_w4a16.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/src/benchmark_w4a16.cu.s
 .PHONY : src/benchmark_w4a16.cu.s
 
+src/debug_kernel.o: src/debug_kernel.cu.o
+.PHONY : src/debug_kernel.o
+
+# target to build an object file
+src/debug_kernel.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/debug_w4a16_sm90.dir/build.make CMakeFiles/debug_w4a16_sm90.dir/src/debug_kernel.cu.o
+.PHONY : src/debug_kernel.cu.o
+
+src/debug_kernel.i: src/debug_kernel.cu.i
+.PHONY : src/debug_kernel.i
+
+# target to preprocess a source file
+src/debug_kernel.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/debug_w4a16_sm90.dir/build.make CMakeFiles/debug_w4a16_sm90.dir/src/debug_kernel.cu.i
+.PHONY : src/debug_kernel.cu.i
+
+src/debug_kernel.s: src/debug_kernel.cu.s
+.PHONY : src/debug_kernel.s
+
+# target to generate assembly for a file
+src/debug_kernel.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/debug_w4a16_sm90.dir/build.make CMakeFiles/debug_w4a16_sm90.dir/src/debug_kernel.cu.s
+.PHONY : src/debug_kernel.cu.s
+
 src/logger.o: src/logger.cpp.o
 .PHONY : src/logger.o
 
@@ -226,6 +276,30 @@ src/logger.s: src/logger.cpp.s
 src/logger.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.s
 .PHONY : src/logger.cpp.s
+
+src/simple_test.o: src/simple_test.cu.o
+.PHONY : src/simple_test.o
+
+# target to build an object file
+src/simple_test.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_test_sm90.dir/build.make CMakeFiles/simple_test_sm90.dir/src/simple_test.cu.o
+.PHONY : src/simple_test.cu.o
+
+src/simple_test.i: src/simple_test.cu.i
+.PHONY : src/simple_test.i
+
+# target to preprocess a source file
+src/simple_test.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_test_sm90.dir/build.make CMakeFiles/simple_test_sm90.dir/src/simple_test.cu.i
+.PHONY : src/simple_test.cu.i
+
+src/simple_test.s: src/simple_test.cu.s
+.PHONY : src/simple_test.s
+
+# target to generate assembly for a file
+src/simple_test.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_test_sm90.dir/build.make CMakeFiles/simple_test_sm90.dir/src/simple_test.cu.s
+.PHONY : src/simple_test.cu.s
 
 src/stringUtils.o: src/stringUtils.cpp.o
 .PHONY : src/stringUtils.o
@@ -332,6 +406,8 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... benchmark_w4a16_sm90"
+	@echo "... debug_w4a16_sm90"
+	@echo "... simple_test_sm90"
 	@echo "... test_w4a16_sm90"
 	@echo "... w4a16_sm90_kernel"
 	@echo "... src/assert.o"
@@ -340,9 +416,15 @@ help:
 	@echo "... src/benchmark_w4a16.o"
 	@echo "... src/benchmark_w4a16.i"
 	@echo "... src/benchmark_w4a16.s"
+	@echo "... src/debug_kernel.o"
+	@echo "... src/debug_kernel.i"
+	@echo "... src/debug_kernel.s"
 	@echo "... src/logger.o"
 	@echo "... src/logger.i"
 	@echo "... src/logger.s"
+	@echo "... src/simple_test.o"
+	@echo "... src/simple_test.i"
+	@echo "... src/simple_test.s"
 	@echo "... src/stringUtils.o"
 	@echo "... src/stringUtils.i"
 	@echo "... src/stringUtils.s"
