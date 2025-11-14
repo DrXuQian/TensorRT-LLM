@@ -19,7 +19,10 @@ set(CUTLASS_DIR "${TRTLLM_ROOT}/3rdparty/cutlass")
 # Include directories
 include_directories(
     ${TRTLLM_ROOT}/cpp/include
+    ${TRTLLM_ROOT}/cpp
+    ${TRTLLM_ROOT}/cpp/include_stubs
     ${TRTLLM_ROOT}/cpp/include/tensorrt_llm/cutlass_extensions/include
+    ${TRTLLM_ROOT}/cpp/tensorrt_llm/cutlass_extensions/include
     ${CUTLASS_DIR}/include
     ${CUTLASS_DIR}/tools/util/include
     ${CUDAToolkit_INCLUDE_DIRS}

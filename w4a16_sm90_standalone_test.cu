@@ -127,14 +127,7 @@ int main(int argc, char** argv)
     CutlassGemmConfig gemm_config;
     if (!configs.empty()) {
         gemm_config = configs[0];  // Use first available config
-        printf("Using config #0: CTA=%dx%dx%d, Cluster=%dx%dx%d, Stages=%d\n",
-               gemm_config.tile_config_sm90.cta_m,
-               gemm_config.tile_config_sm90.cta_n,
-               gemm_config.tile_config_sm90.cta_k,
-               gemm_config.tile_config_sm90.cluster_m,
-               gemm_config.tile_config_sm90.cluster_n,
-               gemm_config.tile_config_sm90.cluster_k,
-               gemm_config.tile_config_sm90.stages);
+        printf("Using config #0 (enum value: %d)\n", static_cast<int>(gemm_config.tile_config_sm90));
     } else {
         printf("No configs available - using default\n");
     }

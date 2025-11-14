@@ -15,7 +15,9 @@ mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 echo "Running CMake..."
-cmake -f ../CMakeLists_w4a16_test.txt ..
+# Create a temporary link to our CMakeLists
+ln -sf CMakeLists_w4a16_test.txt ../CMakeLists.txt
+cmake ..
 
 echo ""
 echo "Building with $(nproc) cores..."
