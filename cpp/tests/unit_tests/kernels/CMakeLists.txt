@@ -39,6 +39,7 @@ add_gtest(shiftKCacheKernelTest shiftKCacheKernelTest.cu)
 add_gtest(smoothQuantKernelTest smoothQuant/smoothQuantKernelTest.cpp)
 add_gtest(stopCriteriaKernelsTest stopCriteriaKernelsTest.cpp)
 add_gtest(weightOnlyKernelTest weightOnly/weightOnlyKernelTest.cpp)
+add_gtest(w4a16SM90SimpleTest weightOnly/w4a16_sm90_simple_test.cu)
 add_gtest(mlaPreprocessTest mlaPreprocessTest.cu)
 add_gtest(sparseAttentionKernelsTest sparseAttentionKernelsTest.cpp)
 

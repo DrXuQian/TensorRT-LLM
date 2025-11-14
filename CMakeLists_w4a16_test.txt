@@ -1,0 +1,63 @@
+cmake_minimum_required(VERSION 3.18)
+project(w4a16_sm90_test CUDA CXX)
+
+# Set standards
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+
+# CUDA
+find_package(CUDAToolkit REQUIRED)
+set(CMAKE_CUDA_ARCHITECTURES 90)
+add_definitions(-DCOMPILE_HOPPER_TMA_GEMMS)
+
+# Paths
+set(TRTLLM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
+set(CUTLASS_DIR "${TRTLLM_ROOT}/3rdparty/cutlass")
+
+# Include directories
+include_directories(
+    ${TRTLLM_ROOT}/cpp/include
+    ${TRTLLM_ROOT}/cpp/include/tensorrt_llm/cutlass_extensions/include
+    ${CUTLASS_DIR}/include
+    ${CUTLASS_DIR}/tools/util/include
+    ${CUDAToolkit_INCLUDE_DIRS}
+)
+
+# CUDA flags
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=-fPIC -Xcompiler=-Wall")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-relaxed-constexpr --expt-extended-lambda")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcudafe --diag_suppress=186")
+set(CMAKE_CUDA_FLAGS_RELEASE "${CMAKE_CUDA_FLAGS_RELEASE} -O3 -lineinfo")
+
+# Collect sources
+file(GLOB_RECURSE GEMM_SOURCES
+    "${TRTLLM_ROOT}/cpp/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/*.cu"
+    "${TRTLLM_ROOT}/cpp/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/*.cpp"
+)
+
+set(COMMON_SOURCES
+    "${TRTLLM_ROOT}/cpp/tensorrt_llm/common/logger.cpp"
+    "${TRTLLM_ROOT}/cpp/tensorrt_llm/common/stringUtils.cpp"
+    "${TRTLLM_ROOT}/cpp/tensorrt_llm/common/assert.cpp"
+    "${TRTLLM_ROOT}/cpp/tensorrt_llm/common/tllmException.cpp"
+)
+
+# Build test
+add_executable(w4a16_test
+    w4a16_sm90_standalone_test.cu
+    ${GEMM_SOURCES}
+    ${COMMON_SOURCES}
+)
+
+target_link_libraries(w4a16_test CUDA::cudart)
+
+set_target_properties(w4a16_test PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    CUDA_RESOLVE_DEVICE_SYMBOLS ON
+)
+
+message(STATUS "TensorRT-LLM: ${TRTLLM_ROOT}")
+message(STATUS "CUTLASS: ${CUTLASS_DIR}")
+message(STATUS "CUDA Arch: ${CMAKE_CUDA_ARCHITECTURES}")
