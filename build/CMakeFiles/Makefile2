@@ -65,6 +65,7 @@ CMAKE_BINARY_DIR = /home/qianxu/trt_llm_w4a16_hopper/build
 # The main recursive "all" target.
 all: CMakeFiles/w4a16_sm90_kernel.dir/all
 all: CMakeFiles/test_w4a16_sm90.dir/all
+all: CMakeFiles/benchmark_w4a16_sm90.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -74,6 +75,7 @@ preinstall:
 # The main recursive "clean" target.
 clean: CMakeFiles/w4a16_sm90_kernel.dir/clean
 clean: CMakeFiles/test_w4a16_sm90.dir/clean
+clean: CMakeFiles/benchmark_w4a16_sm90.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -83,7 +85,7 @@ clean: CMakeFiles/test_w4a16_sm90.dir/clean
 CMakeFiles/w4a16_sm90_kernel.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=4,5,6,7,8,9,10 "Built target w4a16_sm90_kernel"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=7,8,9,10,11,12,13 "Built target w4a16_sm90_kernel"
 .PHONY : CMakeFiles/w4a16_sm90_kernel.dir/all
 
 # Build rule for subdir invocation for target.
@@ -109,7 +111,7 @@ CMakeFiles/w4a16_sm90_kernel.dir/clean:
 CMakeFiles/test_w4a16_sm90.dir/all: CMakeFiles/w4a16_sm90_kernel.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=1,2,3 "Built target test_w4a16_sm90"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=4,5,6 "Built target test_w4a16_sm90"
 .PHONY : CMakeFiles/test_w4a16_sm90.dir/all
 
 # Build rule for subdir invocation for target.
@@ -127,6 +129,32 @@ test_w4a16_sm90: CMakeFiles/test_w4a16_sm90.dir/rule
 CMakeFiles/test_w4a16_sm90.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/clean
 .PHONY : CMakeFiles/test_w4a16_sm90.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/benchmark_w4a16_sm90.dir
+
+# All Build rule for target.
+CMakeFiles/benchmark_w4a16_sm90.dir/all: CMakeFiles/w4a16_sm90_kernel.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles --progress-num=1,2,3 "Built target benchmark_w4a16_sm90"
+.PHONY : CMakeFiles/benchmark_w4a16_sm90.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/benchmark_w4a16_sm90.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles 10
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/benchmark_w4a16_sm90.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles 0
+.PHONY : CMakeFiles/benchmark_w4a16_sm90.dir/rule
+
+# Convenience name for target.
+benchmark_w4a16_sm90: CMakeFiles/benchmark_w4a16_sm90.dir/rule
+.PHONY : benchmark_w4a16_sm90
+
+# clean rule for target.
+CMakeFiles/benchmark_w4a16_sm90.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/clean
+.PHONY : CMakeFiles/benchmark_w4a16_sm90.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

@@ -77,6 +77,21 @@ set_target_properties(test_w4a16_sm90 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
+# Benchmark executable with full functionality
+add_executable(benchmark_w4a16_sm90
+    src/benchmark_w4a16.cu
+)
+
+target_link_libraries(benchmark_w4a16_sm90
+    w4a16_sm90_kernel
+    CUDA::cudart
+)
+
+set_target_properties(benchmark_w4a16_sm90 PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
 # Print configuration info
 message(STATUS "CUDA Architectures: ${CMAKE_CUDA_ARCHITECTURES}")
 message(STATUS "CUTLASS Directory: ${CUTLASS_DIR}")

@@ -142,6 +142,19 @@ test_w4a16_sm90/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/build
 .PHONY : test_w4a16_sm90/fast
 
+#=============================================================================
+# Target rules for targets named benchmark_w4a16_sm90
+
+# Build rule for target.
+benchmark_w4a16_sm90: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 benchmark_w4a16_sm90
+.PHONY : benchmark_w4a16_sm90
+
+# fast build rule for target.
+benchmark_w4a16_sm90/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/build
+.PHONY : benchmark_w4a16_sm90/fast
+
 src/assert.o: src/assert.cpp.o
 .PHONY : src/assert.o
 
@@ -165,6 +178,30 @@ src/assert.s: src/assert.cpp.s
 src/assert.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/assert.cpp.s
 .PHONY : src/assert.cpp.s
+
+src/benchmark_w4a16.o: src/benchmark_w4a16.cu.o
+.PHONY : src/benchmark_w4a16.o
+
+# target to build an object file
+src/benchmark_w4a16.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/src/benchmark_w4a16.cu.o
+.PHONY : src/benchmark_w4a16.cu.o
+
+src/benchmark_w4a16.i: src/benchmark_w4a16.cu.i
+.PHONY : src/benchmark_w4a16.i
+
+# target to preprocess a source file
+src/benchmark_w4a16.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/src/benchmark_w4a16.cu.i
+.PHONY : src/benchmark_w4a16.cu.i
+
+src/benchmark_w4a16.s: src/benchmark_w4a16.cu.s
+.PHONY : src/benchmark_w4a16.s
+
+# target to generate assembly for a file
+src/benchmark_w4a16.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/benchmark_w4a16_sm90.dir/build.make CMakeFiles/benchmark_w4a16_sm90.dir/src/benchmark_w4a16.cu.s
+.PHONY : src/benchmark_w4a16.cu.s
 
 src/logger.o: src/logger.cpp.o
 .PHONY : src/logger.o
@@ -294,11 +331,15 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... benchmark_w4a16_sm90"
 	@echo "... test_w4a16_sm90"
 	@echo "... w4a16_sm90_kernel"
 	@echo "... src/assert.o"
 	@echo "... src/assert.i"
 	@echo "... src/assert.s"
+	@echo "... src/benchmark_w4a16.o"
+	@echo "... src/benchmark_w4a16.i"
+	@echo "... src/benchmark_w4a16.s"
 	@echo "... src/logger.o"
 	@echo "... src/logger.i"
 	@echo "... src/logger.s"

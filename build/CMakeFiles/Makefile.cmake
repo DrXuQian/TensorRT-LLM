@@ -52,4 +52,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/w4a16_sm90_kernel.dir/DependInfo.cmake"
   "CMakeFiles/test_w4a16_sm90.dir/DependInfo.cmake"
+  "CMakeFiles/benchmark_w4a16_sm90.dir/DependInfo.cmake"
   )
