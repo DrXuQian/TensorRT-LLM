@@ -181,6 +181,19 @@ simple_test_sm90/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_test_sm90.dir/build.make CMakeFiles/simple_test_sm90.dir/build
 .PHONY : simple_test_sm90/fast
 
+#=============================================================================
+# Target rules for targets named test_with_bias
+
+# Build rule for target.
+test_with_bias: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_with_bias
+.PHONY : test_with_bias
+
+# fast build rule for target.
+test_with_bias/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_with_bias.dir/build.make CMakeFiles/test_with_bias.dir/build
+.PHONY : test_with_bias/fast
+
 src/assert.o: src/assert.cpp.o
 .PHONY : src/assert.o
 
@@ -349,6 +362,30 @@ src/test_main.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/src/test_main.cu.s
 .PHONY : src/test_main.cu.s
 
+src/test_with_bias.o: src/test_with_bias.cu.o
+.PHONY : src/test_with_bias.o
+
+# target to build an object file
+src/test_with_bias.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_with_bias.dir/build.make CMakeFiles/test_with_bias.dir/src/test_with_bias.cu.o
+.PHONY : src/test_with_bias.cu.o
+
+src/test_with_bias.i: src/test_with_bias.cu.i
+.PHONY : src/test_with_bias.i
+
+# target to preprocess a source file
+src/test_with_bias.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_with_bias.dir/build.make CMakeFiles/test_with_bias.dir/src/test_with_bias.cu.i
+.PHONY : src/test_with_bias.cu.i
+
+src/test_with_bias.s: src/test_with_bias.cu.s
+.PHONY : src/test_with_bias.s
+
+# target to generate assembly for a file
+src/test_with_bias.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_with_bias.dir/build.make CMakeFiles/test_with_bias.dir/src/test_with_bias.cu.s
+.PHONY : src/test_with_bias.cu.s
+
 src/tllmException.o: src/tllmException.cpp.o
 .PHONY : src/tllmException.o
 
@@ -409,6 +446,7 @@ help:
 	@echo "... debug_w4a16_sm90"
 	@echo "... simple_test_sm90"
 	@echo "... test_w4a16_sm90"
+	@echo "... test_with_bias"
 	@echo "... w4a16_sm90_kernel"
 	@echo "... src/assert.o"
 	@echo "... src/assert.i"
@@ -431,6 +469,9 @@ help:
 	@echo "... src/test_main.o"
 	@echo "... src/test_main.i"
 	@echo "... src/test_main.s"
+	@echo "... src/test_with_bias.o"
+	@echo "... src/test_with_bias.i"
+	@echo "... src/test_with_bias.s"
 	@echo "... src/tllmException.o"
 	@echo "... src/tllmException.i"
 	@echo "... src/tllmException.s"

@@ -55,4 +55,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/benchmark_w4a16_sm90.dir/DependInfo.cmake"
   "CMakeFiles/debug_w4a16_sm90.dir/DependInfo.cmake"
   "CMakeFiles/simple_test_sm90.dir/DependInfo.cmake"
+  "CMakeFiles/test_with_bias.dir/DependInfo.cmake"
   )
