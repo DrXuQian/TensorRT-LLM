@@ -194,6 +194,19 @@ test_with_bias/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_with_bias.dir/build.make CMakeFiles/test_with_bias.dir/build
 .PHONY : test_with_bias/fast
 
+#=============================================================================
+# Target rules for targets named safe_test
+
+# Build rule for target.
+safe_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 safe_test
+.PHONY : safe_test
+
+# fast build rule for target.
+safe_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/safe_test.dir/build.make CMakeFiles/safe_test.dir/build
+.PHONY : safe_test/fast
+
 src/assert.o: src/assert.cpp.o
 .PHONY : src/assert.o
 
@@ -289,6 +302,30 @@ src/logger.s: src/logger.cpp.s
 src/logger.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/src/logger.cpp.s
 .PHONY : src/logger.cpp.s
+
+src/safe_test.o: src/safe_test.cu.o
+.PHONY : src/safe_test.o
+
+# target to build an object file
+src/safe_test.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/safe_test.dir/build.make CMakeFiles/safe_test.dir/src/safe_test.cu.o
+.PHONY : src/safe_test.cu.o
+
+src/safe_test.i: src/safe_test.cu.i
+.PHONY : src/safe_test.i
+
+# target to preprocess a source file
+src/safe_test.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/safe_test.dir/build.make CMakeFiles/safe_test.dir/src/safe_test.cu.i
+.PHONY : src/safe_test.cu.i
+
+src/safe_test.s: src/safe_test.cu.s
+.PHONY : src/safe_test.s
+
+# target to generate assembly for a file
+src/safe_test.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/safe_test.dir/build.make CMakeFiles/safe_test.dir/src/safe_test.cu.s
+.PHONY : src/safe_test.cu.s
 
 src/simple_test.o: src/simple_test.cu.o
 .PHONY : src/simple_test.o
@@ -444,6 +481,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... benchmark_w4a16_sm90"
 	@echo "... debug_w4a16_sm90"
+	@echo "... safe_test"
 	@echo "... simple_test_sm90"
 	@echo "... test_w4a16_sm90"
 	@echo "... test_with_bias"
@@ -460,6 +498,9 @@ help:
 	@echo "... src/logger.o"
 	@echo "... src/logger.i"
 	@echo "... src/logger.s"
+	@echo "... src/safe_test.o"
+	@echo "... src/safe_test.i"
+	@echo "... src/safe_test.s"
 	@echo "... src/simple_test.o"
 	@echo "... src/simple_test.i"
 	@echo "... src/simple_test.s"

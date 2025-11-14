@@ -141,3 +141,19 @@ set_target_properties(test_with_bias PROPERTIES
 message(STATUS "CUDA Architectures: ${CMAKE_CUDA_ARCHITECTURES}")
 message(STATUS "CUTLASS Directory: ${CUTLASS_DIR}")
 message(STATUS "CUDA Toolkit Include: ${CUDAToolkit_INCLUDE_DIRS}")
+
+# Safe test with exception handling
+add_executable(safe_test
+    src/safe_test.cu
+)
+
+target_link_libraries(safe_test
+    w4a16_sm90_kernel
+    CUDA::cudart
+)
+
+set_target_properties(safe_test PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
