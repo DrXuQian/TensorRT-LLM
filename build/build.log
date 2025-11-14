@@ -1,0 +1,41 @@
+/usr/bin/cmake -S/home/qianxu/trt_llm_w4a16_hopper -B/home/qianxu/trt_llm_w4a16_hopper/build --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/cmake -E cmake_progress_start /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles /home/qianxu/trt_llm_w4a16_hopper/build//CMakeFiles/progress.marks
+make  -f CMakeFiles/Makefile2 all
+make[1]: Entering directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+make  -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/depend
+make  -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/depend
+make[2]: Entering directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+cd /home/qianxu/trt_llm_w4a16_hopper/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/qianxu/trt_llm_w4a16_hopper /home/qianxu/trt_llm_w4a16_hopper /home/qianxu/trt_llm_w4a16_hopper/build /home/qianxu/trt_llm_w4a16_hopper/build /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles/test_w4a16_sm90.dir/DependInfo.cmake --color=
+make[2]: Entering directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+cd /home/qianxu/trt_llm_w4a16_hopper/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/qianxu/trt_llm_w4a16_hopper /home/qianxu/trt_llm_w4a16_hopper /home/qianxu/trt_llm_w4a16_hopper/build /home/qianxu/trt_llm_w4a16_hopper/build /home/qianxu/trt_llm_w4a16_hopper/build/CMakeFiles/w4a16_sm90_kernel.dir/DependInfo.cmake --color=
+make[2]: Leaving directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+make  -f CMakeFiles/test_w4a16_sm90.dir/build.make CMakeFiles/test_w4a16_sm90.dir/build
+make[2]: Entering directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+make[2]: Leaving directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+make  -f CMakeFiles/w4a16_sm90_kernel.dir/build.make CMakeFiles/w4a16_sm90_kernel.dir/build
+[ 16%] Building CUDA object CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o
+make[2]: Entering directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+/usr/local/cuda-12.8/bin/nvcc -forward-unknown-to-host-compiler -DCOMPILE_HOPPER_TMA_GEMMS -I/home/qianxu/trt_llm_w4a16_hopper/include -I/home/qianxu/cutlass/include -isystem=/usr/local/cuda-12.8/include -Xcompiler=-fPIC -Xcompiler=-Wall --expt-relaxed-constexpr --expt-extended-lambda -Xcudafe --diag_suppress=186 -O3 -DNDEBUG -O3 -lineinfo --generate-code=arch=compute_90,code=[compute_90,sm_90] -std=c++17 -MD -MT CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o -MF CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o.d -x cu -dc /home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu -o CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o
+[ 33%] Building CUDA object CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o
+/usr/local/cuda-12.8/bin/nvcc -forward-unknown-to-host-compiler -DCOMPILE_HOPPER_TMA_GEMMS -Dw4a16_sm90_kernel_EXPORTS -I/home/qianxu/trt_llm_w4a16_hopper/include -I/home/qianxu/cutlass/include -isystem=/usr/local/cuda-12.8/include -Xcompiler=-fPIC -Xcompiler=-Wall --expt-relaxed-constexpr --expt-extended-lambda -Xcudafe --diag_suppress=186 -O3 -DNDEBUG -O3 -lineinfo --generate-code=arch=compute_90,code=[compute_90,sm_90] -Xcompiler=-fPIC -std=c++17 -MD -MT CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o -MF CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o.d -x cu -dc /home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu -o CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o
+In file included from /home/qianxu/trt_llm_w4a16_hopper/include/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/fpA_intB_gemm_template_sm90.h:23,
+                 from /home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu:8:
+/home/qianxu/trt_llm_w4a16_hopper/include/tensorrt_llm/common/cudaUtils.h:20:10: fatal error: tensorrt_llm/common/cudaDriverWrapper.h: No such file or directory
+   20 | #include "tensorrt_llm/common/cudaDriverWrapper.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[2]: *** [CMakeFiles/test_w4a16_sm90.dir/build.make:76: CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o] Error 1
+make[2]: Leaving directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+make[1]: *** [CMakeFiles/Makefile2:111: CMakeFiles/test_w4a16_sm90.dir/all] Error 2
+In file included from /home/qianxu/trt_llm_w4a16_hopper/include/tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/fpA_intB_gemm_template_sm90.h:23,
+                 from /home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu:8:
+/home/qianxu/trt_llm_w4a16_hopper/include/tensorrt_llm/common/cudaUtils.h:20:10: fatal error: tensorrt_llm/common/cudaDriverWrapper.h: No such file or directory
+   20 | #include "tensorrt_llm/common/cudaDriverWrapper.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+make[1]: *** Waiting for unfinished jobs....
+compilation terminated.
+make[2]: *** [CMakeFiles/w4a16_sm90_kernel.dir/build.make:76: CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o] Error 1
+make[2]: Leaving directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+make[1]: *** [CMakeFiles/Makefile2:85: CMakeFiles/w4a16_sm90_kernel.dir/all] Error 2
+make[1]: Leaving directory '/home/qianxu/trt_llm_w4a16_hopper/build'
+make: *** [Makefile:91: all] Error 2

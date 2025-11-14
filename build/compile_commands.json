@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/qianxu/trt_llm_w4a16_hopper/build",
+  "command": "/usr/local/cuda-12.8/bin/nvcc -forward-unknown-to-host-compiler -DCOMPILE_HOPPER_TMA_GEMMS -Dw4a16_sm90_kernel_EXPORTS -I/home/qianxu/trt_llm_w4a16_hopper/include -I/home/qianxu/cutlass/include -isystem=/usr/local/cuda-12.8/include  -Xcompiler=-fPIC -Xcompiler=-Wall --expt-relaxed-constexpr --expt-extended-lambda -Xcudafe --diag_suppress=186 -O3 -DNDEBUG -O3 -lineinfo --generate-code=arch=compute_90,code=[compute_90,sm_90] -Xcompiler=-fPIC -std=c++17 -x cu -dc /home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu -o CMakeFiles/w4a16_sm90_kernel.dir/src/w4a16_sm90_kernel.cu.o",
+  "file": "/home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu"
+},
+{
+  "directory": "/home/qianxu/trt_llm_w4a16_hopper/build",
+  "command": "/usr/local/cuda-12.8/bin/nvcc -forward-unknown-to-host-compiler -DCOMPILE_HOPPER_TMA_GEMMS -I/home/qianxu/trt_llm_w4a16_hopper/include -I/home/qianxu/cutlass/include -isystem=/usr/local/cuda-12.8/include  -Xcompiler=-fPIC -Xcompiler=-Wall --expt-relaxed-constexpr --expt-extended-lambda -Xcudafe --diag_suppress=186 -O3 -DNDEBUG -O3 -lineinfo --generate-code=arch=compute_90,code=[compute_90,sm_90] -std=c++17 -x cu -dc /home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu -o CMakeFiles/test_w4a16_sm90.dir/src/w4a16_sm90_kernel.cu.o",
+  "file": "/home/qianxu/trt_llm_w4a16_hopper/src/w4a16_sm90_kernel.cu"
+}
+]
