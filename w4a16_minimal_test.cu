@@ -170,21 +170,117 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    printf("✅ Success!\n\n");
+    printf("✅ GEMM completed!\n\n");
 
-    // 检查结果
-    std::vector<half> h_C(std::min(size_t(10), size_C));
-    CUDA_CHECK(cudaMemcpy(h_C.data(), d_C, h_C.size() * sizeof(half), cudaMemcpyDeviceToHost));
+    // CPU 参考实现 (FP32 精度)
+    printf("=== Computing CPU Reference ===\n");
+    std::vector<float> h_C_ref(size_C, 0.0f);
 
-    printf("First 10 outputs:\n");
-    int nonzero = 0;
-    for (size_t i = 0; i < h_C.size(); i++) {
-        float val = __half2float(h_C[i]);
-        printf("  C[%zu] = %.6f\n", i, val);
-        if (std::abs(val) > 1e-7f) nonzero++;
+    // 解包 INT4 权重并计算参考结果
+    for (int m = 0; m < M; m++) {
+        for (int n = 0; n < N; n++) {
+            float sum = 0.0f;
+
+            for (int k = 0; k < K; k++) {
+                float a_val = __half2float(h_A[m * K + k]);
+
+                // 解包 INT4 权重
+                int b_idx = n * K + k;
+                int byte_idx = b_idx / 2;
+                int nibble_idx = b_idx % 2;
+                uint8_t byte_val = h_B[byte_idx];
+                uint8_t int4_val = (nibble_idx == 0) ? (byte_val & 0x0F) : ((byte_val >> 4) & 0x0F);
+
+                // INT4 是无符号的 [0, 15]
+                float b_val = static_cast<float>(int4_val);
+
+                // 应用量化缩放
+                int scale_idx = n * (K / group_size) + (k / group_size);
+                float scale = __half2float(h_scales[scale_idx]);
+                b_val *= scale;
+
+                sum += a_val * b_val;
+            }
+
+            h_C_ref[m * N + n] = sum;
+        }
+    }
+    printf("CPU reference computed\n\n");
+
+    // 从 GPU 复制完整结果
+    printf("=== Validating Results ===\n");
+    std::vector<half> h_C(size_C);
+    CUDA_CHECK(cudaMemcpy(h_C.data(), d_C, size_C * sizeof(half), cudaMemcpyDeviceToHost));
+
+    // 精度检查
+    float max_abs_error = 0.0f;
+    float max_rel_error = 0.0f;
+    float avg_abs_error = 0.0f;
+    float avg_rel_error = 0.0f;
+    int num_large_errors = 0;
+
+    const float abs_tol = 1e-2f;  // 绝对误差容忍度
+    const float rel_tol = 1e-2f;  // 相对误差容忍度 (1%)
+
+    for (size_t i = 0; i < size_C; i++) {
+        float gpu_val = __half2float(h_C[i]);
+        float cpu_val = h_C_ref[i];
+
+        float abs_error = std::abs(gpu_val - cpu_val);
+        float rel_error = (std::abs(cpu_val) > 1e-6f) ?
+                          (abs_error / std::abs(cpu_val)) : 0.0f;
+
+        max_abs_error = std::max(max_abs_error, abs_error);
+        max_rel_error = std::max(max_rel_error, rel_error);
+        avg_abs_error += abs_error;
+        avg_rel_error += rel_error;
+
+        if (abs_error > abs_tol && rel_error > rel_tol) {
+            num_large_errors++;
+            if (num_large_errors <= 5) {  // 只打印前 5 个大误差
+                printf("  Large error at [%zu]: GPU=%.6f, CPU=%.6f, abs_err=%.6f, rel_err=%.2f%%\n",
+                       i, gpu_val, cpu_val, abs_error, rel_error * 100.0f);
+            }
+        }
     }
 
-    printf("\nNon-zero outputs: %d/%zu\n", nonzero, h_C.size());
+    avg_abs_error /= size_C;
+    avg_rel_error /= size_C;
+
+    printf("\n=== Accuracy Statistics ===\n");
+    printf("Max absolute error: %.6f\n", max_abs_error);
+    printf("Max relative error: %.2f%%\n", max_rel_error * 100.0f);
+    printf("Avg absolute error: %.6f\n", avg_abs_error);
+    printf("Avg relative error: %.2f%%\n", avg_rel_error * 100.0f);
+    printf("Elements with large errors: %d / %zu (%.2f%%)\n",
+           num_large_errors, size_C, (num_large_errors * 100.0f) / size_C);
+
+    // 显示一些样本值
+    printf("\n=== Sample Results (first 5) ===\n");
+    for (int i = 0; i < std::min(5, (int)size_C); i++) {
+        float gpu_val = __half2float(h_C[i]);
+        float cpu_val = h_C_ref[i];
+        float abs_error = std::abs(gpu_val - cpu_val);
+        float rel_error = (std::abs(cpu_val) > 1e-6f) ?
+                          (abs_error / std::abs(cpu_val)) : 0.0f;
+        printf("  [%d] GPU: %8.4f  CPU: %8.4f  Abs: %.6f  Rel: %.2f%%\n",
+               i, gpu_val, cpu_val, abs_error, rel_error * 100.0f);
+    }
+
+    // 判断测试是否通过
+    bool passed = (max_abs_error < abs_tol * 10.0f) ||  // 放宽 10 倍容忍度
+                  (max_rel_error < rel_tol * 10.0f);     // 或相对误差在范围内
+
+    printf("\n=== Test Result ===\n");
+    if (passed) {
+        printf("✅ PASSED: Results within acceptable tolerance\n");
+    } else {
+        printf("❌ FAILED: Errors exceed tolerance\n");
+        printf("   Max absolute error: %.6f (threshold: %.6f)\n",
+               max_abs_error, abs_tol * 10.0f);
+        printf("   Max relative error: %.2f%% (threshold: %.2f%%)\n",
+               max_rel_error * 100.0f, rel_tol * 1000.0f);
+    }
 
     // 清理
     CUDA_CHECK(cudaFree(d_A));
@@ -194,5 +290,5 @@ int main(int argc, char** argv)
     if (d_workspace) CUDA_CHECK(cudaFree(d_workspace));
     CUDA_CHECK(cudaStreamDestroy(stream));
 
-    return 0;
+    return passed ? 0 : 1;
 }
