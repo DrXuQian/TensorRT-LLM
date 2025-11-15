@@ -44,6 +44,7 @@ include_directories(
 set(CMAKE_CUDA_FLAGS "\${CMAKE_CUDA_FLAGS} -Xcompiler=-fPIC")
 set(CMAKE_CUDA_FLAGS "\${CMAKE_CUDA_FLAGS} --expt-relaxed-constexpr --expt-extended-lambda")
 set(CMAKE_CUDA_FLAGS "\${CMAKE_CUDA_FLAGS} -Xcudafe --diag_suppress=186")
+set(CMAKE_CUDA_FLAGS "\${CMAKE_CUDA_FLAGS} -gencode=arch=compute_90a,code=sm_90a")  # H100/H800
 
 # Only use W4A16 (FP16+INT4) kernels - 12 files without FP8/BF16
 file(GLOB W4A16_KERNELS "\${TRTLLM}/generated_kernels_w4a16_only/*.cu")
