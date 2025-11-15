@@ -8,16 +8,14 @@
 #include <random>
 #include <vector>
 
-// 定义编译选项
-#define COMPILE_HOPPER_TMA_GEMMS
-
 // TensorRT-LLM includes
+// Note: COMPILE_HOPPER_TMA_GEMMS is defined in build script
 #include "tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/fpA_intB_gemm_template.h"
 
 using namespace tensorrt_llm::kernels::cutlass_kernels;
 using namespace tensorrt_llm::cutlass_extensions;
 
-// 显式实例化 W4A16 runner
+// 显式实例化 W4A16 SM90 runner
 namespace tensorrt_llm {
 namespace kernels {
 namespace cutlass_kernels {
@@ -45,8 +43,9 @@ int main(int argc, char** argv)
     printf("GPU: %s\n", prop.name);
     printf("Compute Capability: %d.%d\n\n", prop.major, prop.minor);
 
-    if (prop.major * 10 + prop.minor < 90) {
-        fprintf(stderr, "需要 SM90+ GPU (Hopper)\n");
+    if (prop.major != 9 || prop.minor != 0) {
+        fprintf(stderr, "此程序需要 H100/H800 GPU (Compute Capability 9.0)\n");
+        fprintf(stderr, "当前 GPU: CC %d.%d\n", prop.major, prop.minor);
         return 1;
     }
 
