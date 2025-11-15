@@ -39,6 +39,7 @@ include_directories(
     \${TRTLLM}/cpp/tensorrt_llm/cutlass_extensions/include
     \${CUTLASS}/include
     \${CUTLASS}/tools/util/include
+    \${CUDAToolkit_INCLUDE_DIRS}
 )
 
 set(CMAKE_CUDA_FLAGS "\${CMAKE_CUDA_FLAGS} -Xcompiler=-fPIC")
