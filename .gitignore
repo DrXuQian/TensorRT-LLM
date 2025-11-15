@@ -85,3 +85,14 @@ compile_commands.json
 # Enroot sqsh files
 enroot/sw-tensorrt-docker+*.sqsh
 enroot/tensorrt_llm.devel.sqsh
+
+# W4A16 extraction build artifacts
+build_w4a16*/
+build_minimal/
+build_kernels_lib/
+build_with_generated/
+generated_kernels/
+generated_kernels_fp16/
+CMakeLists.txt
+CMakeLists_with_generated.txt
+w4a16_standalone_build.cmake
