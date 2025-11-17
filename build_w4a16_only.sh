@@ -62,9 +62,26 @@ add_executable(w4a16_only_test
     \${TRTLLM}/cpp/tensorrt_llm/kernels/cutlass_kernels/cutlass_heuristic.cpp
 )
 
+# 添加 performance test
+add_executable(w4a16_perf_test
+    \${TRTLLM}/w4a16_performance_test.cu
+    \${W4A16_KERNELS}
+    \${TRTLLM}/cpp/tensorrt_llm/common/logger.cpp
+    \${TRTLLM}/cpp/tensorrt_llm/common/stringUtils.cpp
+    \${TRTLLM}/cpp/tensorrt_llm/common/assert.cpp
+    \${TRTLLM}/cpp/tensorrt_llm/common/tllmException.cpp
+    \${TRTLLM}/cpp/tensorrt_llm/kernels/cutlass_kernels/cutlass_heuristic.cpp
+)
+
 target_link_libraries(w4a16_only_test CUDA::cudart)
+target_link_libraries(w4a16_perf_test CUDA::cudart)
 
 set_target_properties(w4a16_only_test PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    CUDA_RESOLVE_DEVICE_SYMBOLS ON
+)
+
+set_target_properties(w4a16_perf_test PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
     CUDA_RESOLVE_DEVICE_SYMBOLS ON
 )
