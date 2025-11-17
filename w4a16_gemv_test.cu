@@ -53,17 +53,29 @@ CutlassGemmConfig selectBestConfig(
     for (size_t i = 0; i < configs.size(); i++) {
         const auto& cfg = configs[i];
 
-        if (cfg.tile_config_sm.m == 0) continue;
+        // 提取 tile shape (M, N, K) 从 SM90 config
+        auto [tile_m, tile_n, tile_k] = enum_to_shape_tuple(cfg.tile_config_sm90);
+
+        if (tile_m == 0) continue;
 
         int score = 0;
-        if (cfg.tile_config_sm.m == preferred_m_tile) score += 100;
-        else if (cfg.tile_config_sm.m < preferred_m_tile) score += 50;
+        // M tile 匹配度
+        if (tile_m == preferred_m_tile) score += 100;
+        else if (tile_m < preferred_m_tile) score += 50;
 
-        score += cfg.tile_config_sm.n / 32;
-        if (cfg.tile_config_sm.k == 64) score += 10;
+        // N tile 越大越好
+        score += tile_n / 32;
+
+        // K tile 偏好 (SM90 通常用 K=128B, 对应约 64 INT4 elements)
+        if (tile_k >= 64) score += 10;
+
+        // Cluster shape (大矩阵优先)
         if (M >= 128 && N >= 128) {
-            score += (cfg.cluster_shape_sm.m + cfg.cluster_shape_sm.n) * 5;
+            auto [cluster_m, cluster_n, cluster_k] = enum_to_shape_tuple(cfg.cluster_shape);
+            score += (cluster_m + cluster_n) * 5;
         }
+
+        // Schedule 偏好
         if (cfg.mainloop_schedule == MainloopScheduleType::COOPERATIVE) {
             score += 20;
         }

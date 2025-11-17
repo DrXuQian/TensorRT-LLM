@@ -43,17 +43,15 @@ struct ConfigInfo {
 
 // 打印配置信息
 void printConfig(const CutlassGemmConfig& cfg, int index) {
-    printf("  [%d] Tile: M=%d N=%d K=%d, Stages=%d",
-           index,
-           cfg.tile_config_sm.m,
-           cfg.tile_config_sm.n,
-           cfg.tile_config_sm.k,
-           cfg.stages);
+    // 提取 SM90 tile shape
+    auto [tile_m, tile_n, tile_k] = enum_to_shape_tuple(cfg.tile_config_sm90);
+    auto [cluster_m, cluster_n, cluster_k] = enum_to_shape_tuple(cfg.cluster_shape);
+
+    printf("  [%d] Tile: M=%d N=%d K=%d",
+           index, tile_m, tile_n, tile_k);
 
     printf(", Cluster: %dx%dx%d",
-           cfg.cluster_shape_sm.m,
-           cfg.cluster_shape_sm.n,
-           cfg.cluster_shape_sm.k);
+           cluster_m, cluster_n, cluster_k);
 
     if (cfg.mainloop_schedule == MainloopScheduleType::AUTO) {
         printf(", Sched: AUTO");
@@ -100,32 +98,35 @@ CutlassGemmConfig selectBestConfig(
     for (size_t i = 0; i < configs.size(); i++) {
         const auto& cfg = configs[i];
 
-        // 跳过 CUDA kernel (我们目前没有实现)
-        // 通过检查 tile 配置来判断
-        if (cfg.tile_config_sm.m == 0) {
+        // 提取 tile shape
+        auto [tile_m, tile_n, tile_k] = enum_to_shape_tuple(cfg.tile_config_sm90);
+
+        // 跳过无效配置
+        if (tile_m == 0) {
             continue;
         }
 
         int score = 0;
 
         // M tile 匹配度
-        if (cfg.tile_config_sm.m == preferred_m_tile) {
+        if (tile_m == preferred_m_tile) {
             score += 100;
-        } else if (cfg.tile_config_sm.m < preferred_m_tile) {
+        } else if (tile_m < preferred_m_tile) {
             score += 50;
         }
 
         // N tile 越大越好 (通常)
-        score += cfg.tile_config_sm.n / 32;
+        score += tile_n / 32;
 
-        // K tile 匹配
-        if (cfg.tile_config_sm.k == 64) {
+        // K tile 匹配 (SM90 uses K in bytes, typically 128B)
+        if (tile_k >= 64) {
             score += 10;
         }
 
         // Cluster shape: 对于大矩阵，prefer larger clusters
         if (M >= 128 && N >= 128) {
-            score += (cfg.cluster_shape_sm.m + cfg.cluster_shape_sm.n) * 5;
+            auto [cluster_m, cluster_n, cluster_k] = enum_to_shape_tuple(cfg.cluster_shape);
+            score += (cluster_m + cluster_n) * 5;
         }
 
         // Schedule: COOPERATIVE 通常更好
@@ -168,7 +169,8 @@ ConfigInfo profileConfig(
     info.time_ms = FLT_MAX;
 
     // 跳过无效配置
-    if (config.tile_config_sm.m == 0) {
+    auto [tile_m, tile_n, tile_k] = enum_to_shape_tuple(config.tile_config_sm90);
+    if (tile_m == 0) {
         return info;
     }
 
