@@ -50,8 +50,10 @@ set(CMAKE_CUDA_FLAGS "\${CMAKE_CUDA_FLAGS} -gencode=arch=compute_90a,code=sm_90a
 # W4A16 CUTLASS kernels (12 files)
 file(GLOB W4A16_KERNELS "\${TRTLLM}/generated_kernels_w4a16_only/*.cu")
 
-# GEMV kernels (19 .cu files from weightOnlyBatchedGemv)
-file(GLOB GEMV_SOURCES "\${TRTLLM}/cpp/tensorrt_llm/kernels/weightOnlyBatchedGemv/*.cu")
+# GEMV kernels (from weightOnlyBatchedGemv, excluding cudaCoreGemmNVFP4.cu)
+file(GLOB GEMV_SOURCES_ALL "\${TRTLLM}/cpp/tensorrt_llm/kernels/weightOnlyBatchedGemv/*.cu")
+list(FILTER GEMV_SOURCES_ALL EXCLUDE REGEX ".*cudaCoreGemmNVFP4\\.cu$")
+set(GEMV_SOURCES \${GEMV_SOURCES_ALL})
 
 # Common sources
 set(COMMON_SOURCES
