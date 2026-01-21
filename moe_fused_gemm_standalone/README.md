@@ -16,9 +16,10 @@ What I changed / extracted
   - `tensorrt_llm/common/assert.h` (TLLM_CHECK macros)
   - `tensorrt_llm/common/cudaUtils.h` (check_cuda_error)
   - `tensorrt_llm/common/config.h` (namespace macros)
-- Added wrapper APIs with fixed FP16 kernel config:
+- Added wrapper APIs with FP16 kernel variants + a small heuristic selector:
   - `fused_moe_gemm_sm80_wrappers.{h,cu}`
-- Added a standalone test (`test/test_moe_fused_gemm.cu`) with CLI args.
+- Added a standalone test (`test/test_moe_fused_gemm.cu`) with CLI args and
+  an optional CPU reference for small cases.
 - Patched `fused_moe_gemm_launcher_sm80.inl` error formatting to avoid
   `std::string` so it works with the minimal TLLM_CHECK stub.
 
@@ -34,8 +35,8 @@ What is NOT included (limitations)
 - FP16 only:
   - no BF16, FP8, FP4, INT8/INT4, quantized weights, or DeepSeek blockscale
 - No SM90/TMA paths
-- No kernel heuristic or tactic selection:
-  - fixed tile config (128x128x64, stages=2)
+- No full tactic/heuristic system:
+  - only a small, shape-based selector over a handful of SM80 configs
 - No LoRA, bias scaling, or extra fusion paths (only optional bias pointer)
 
 Input/weight layout assumptions
@@ -67,8 +68,16 @@ moe_fused_gemm_standalone/build/test_moe_fused_gemm \
   --num_experts=32 --experts_per_token=4 --op=both
 ```
 
+CPU reference check (small shapes only):
+
+```
+moe_fused_gemm_standalone/build/test_moe_fused_gemm \
+  --num_tokens=16 --hidden_size=128 --inter_size=128 \
+  --num_experts=4 --experts_per_token=2 --op=both --verify
+```
+
 Notes
 -----
-- The test only does a lightweight checksum; no CPU reference is included.
-- This is intended for kernel extraction and benchmarking, not full MoE
-  correctness vs TRT-LLM.
+- `hidden_size` and `inter_size` must be multiples of 128 for the fused configs.
+- The CPU reference only runs for small shapes and is a sanity check, not a full
+  TRT-LLM correctness test.

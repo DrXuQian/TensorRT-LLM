@@ -5,6 +5,7 @@
 #include "tensorrt_llm/common/cudaUtils.h"
 #include "tensorrt_llm/kernels/cutlass_kernels/moe_gemm/launchers/fused_moe_gemm_sm80_wrappers.h"
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -25,13 +26,14 @@ struct Args
     int experts_per_token = 8;
     bool run_fc1 = true;
     bool run_fc2 = true;
+    bool verify = false;
 };
 
 void print_usage(char const* name)
 {
     std::printf(
         "Usage: %s [--num_tokens=N] [--hidden_size=N] [--inter_size=N] [--num_experts=N] "
-        "[--experts_per_token=N] [--op=fc1|fc2|both]\n",
+        "[--experts_per_token=N] [--op=fc1|fc2|both] [--verify]\n",
         name);
 }
 
@@ -112,6 +114,11 @@ void parse_args(int argc, char** argv, Args& args)
             }
             continue;
         }
+        if (std::strcmp(argv[i], "--verify") == 0)
+        {
+            args.verify = true;
+            continue;
+        }
         std::fprintf(stderr, "Unknown argument: %s\n", argv[i]);
         print_usage(argv[0]);
         std::exit(1);
@@ -135,6 +142,15 @@ void fill_device_half(cutlass::half_t* data, size_t n, float scale, cudaStream_t
     fill_half_kernel<<<grid, block, 0, stream>>>(data, n, scale);
 }
 
+void fill_host_half(cutlass::half_t* data, size_t n, float scale)
+{
+    for (size_t idx = 0; idx < n; ++idx)
+    {
+        float const val = static_cast<float>(idx % 97) * scale;
+        data[idx] = cutlass::half_t(val);
+    }
+}
+
 size_t checked_mul_size(size_t a, size_t b, char const* name)
 {
     if (a != 0 && b > std::numeric_limits<size_t>::max() / a)
@@ -154,6 +170,145 @@ float checksum_first(cutlass::half_t const* data, size_t n)
         sum += static_cast<float>(data[i]);
     }
     return sum;
+}
+
+float silu(float x)
+{
+    return x / (1.0f + std::exp(-x));
+}
+
+struct DiffStats
+{
+    float max_abs = 0.0f;
+    float max_rel = 0.0f;
+    size_t max_idx = 0;
+};
+
+bool find_nonfinite_half(cutlass::half_t const* data, size_t n, char const* name)
+{
+    for (size_t i = 0; i < n; ++i)
+    {
+        float const val = static_cast<float>(data[i]);
+        if (!std::isfinite(val))
+        {
+            std::printf("%s has non-finite value at %zu: %f\n", name, i, val);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool find_nonfinite_float(float const* data, size_t n, char const* name)
+{
+    for (size_t i = 0; i < n; ++i)
+    {
+        float const val = data[i];
+        if (!std::isfinite(val))
+        {
+            std::printf("%s has non-finite value at %zu: %f\n", name, i, val);
+            return true;
+        }
+    }
+    return false;
+}
+
+DiffStats compare_half_to_float(cutlass::half_t const* gpu, float const* ref, size_t n)
+{
+    DiffStats stats;
+    for (size_t i = 0; i < n; ++i)
+    {
+        float const gpu_val = static_cast<float>(gpu[i]);
+        float const ref_val = ref[i];
+        if (!std::isfinite(gpu_val) || !std::isfinite(ref_val))
+        {
+            bool const both_nan = std::isnan(gpu_val) && std::isnan(ref_val);
+            bool const both_inf = std::isinf(gpu_val) && std::isinf(ref_val)
+                && (std::signbit(gpu_val) == std::signbit(ref_val));
+            if (both_nan || both_inf)
+            {
+                continue;
+            }
+            stats.max_abs = std::numeric_limits<float>::infinity();
+            stats.max_rel = std::numeric_limits<float>::infinity();
+            stats.max_idx = i;
+            return stats;
+        }
+        float const abs_err = std::fabs(gpu_val - ref_val);
+        float const rel_err = abs_err / (std::fabs(ref_val) + 1e-6f);
+        if (abs_err > stats.max_abs)
+        {
+            stats.max_abs = abs_err;
+            stats.max_idx = i;
+        }
+        if (rel_err > stats.max_rel)
+        {
+            stats.max_rel = rel_err;
+        }
+    }
+    return stats;
+}
+
+void fc1_reference(std::vector<float>& out_fp32, std::vector<cutlass::half_t>& out_half,
+    std::vector<cutlass::half_t> const& input, std::vector<cutlass::half_t> const& weights,
+    std::vector<int64_t> const& total_tokens_including_expert, int num_experts, int64_t num_rows, int64_t gemm_n,
+    int64_t gemm_k)
+{
+    out_fp32.assign(static_cast<size_t>(num_rows * gemm_n), 0.0f);
+    out_half.assign(static_cast<size_t>(num_rows * gemm_n), cutlass::half_t(0.0f));
+    for (int e = 0; e < num_experts; ++e)
+    {
+        int64_t const start = (e == 0) ? 0 : total_tokens_including_expert[e - 1];
+        int64_t const end = total_tokens_including_expert[e];
+        size_t const expert_stride = static_cast<size_t>(2 * gemm_n * gemm_k);
+        cutlass::half_t const* w_value = weights.data() + static_cast<size_t>(e) * expert_stride;
+        cutlass::half_t const* w_gate = w_value + static_cast<size_t>(gemm_n * gemm_k);
+        for (int64_t row = start; row < end; ++row)
+        {
+            cutlass::half_t const* a = input.data() + static_cast<size_t>(row) * gemm_k;
+            for (int64_t n = 0; n < gemm_n; ++n)
+            {
+                float acc_value = 0.0f;
+                float acc_gate = 0.0f;
+                for (int64_t k = 0; k < gemm_k; ++k)
+                {
+                    float const a_val = static_cast<float>(a[k]);
+                    acc_value += a_val * static_cast<float>(w_value[static_cast<size_t>(n) * gemm_k + k]);
+                    acc_gate += a_val * static_cast<float>(w_gate[static_cast<size_t>(n) * gemm_k + k]);
+                }
+                float const out = silu(acc_gate) * acc_value;
+                size_t const idx = static_cast<size_t>(row) * gemm_n + static_cast<size_t>(n);
+                out_fp32[idx] = out;
+                out_half[idx] = cutlass::half_t(out);
+            }
+        }
+    }
+}
+
+void fc2_reference(std::vector<float>& out_fp32, std::vector<cutlass::half_t> const& input,
+    std::vector<cutlass::half_t> const& weights, std::vector<int64_t> const& total_tokens_including_expert,
+    int num_experts, int64_t num_rows, int64_t gemm_n, int64_t gemm_k)
+{
+    out_fp32.assign(static_cast<size_t>(num_rows * gemm_n), 0.0f);
+    for (int e = 0; e < num_experts; ++e)
+    {
+        int64_t const start = (e == 0) ? 0 : total_tokens_including_expert[e - 1];
+        int64_t const end = total_tokens_including_expert[e];
+        size_t const expert_stride = static_cast<size_t>(gemm_n * gemm_k);
+        cutlass::half_t const* w = weights.data() + static_cast<size_t>(e) * expert_stride;
+        for (int64_t row = start; row < end; ++row)
+        {
+            cutlass::half_t const* a = input.data() + static_cast<size_t>(row) * gemm_k;
+            for (int64_t n = 0; n < gemm_n; ++n)
+            {
+                float acc = 0.0f;
+                for (int64_t k = 0; k < gemm_k; ++k)
+                {
+                    acc += static_cast<float>(a[k]) * static_cast<float>(w[static_cast<size_t>(n) * gemm_k + k]);
+                }
+                out_fp32[static_cast<size_t>(row) * gemm_n + static_cast<size_t>(n)] = acc;
+            }
+        }
+    }
 }
 } // namespace
 
@@ -176,6 +331,11 @@ int main(int argc, char** argv)
     if ((args.hidden_size % 8) != 0 || (args.inter_size % 8) != 0)
     {
         std::fprintf(stderr, "hidden_size and inter_size must be multiples of 8.\n");
+        return 1;
+    }
+    if ((args.hidden_size % 128) != 0 || (args.inter_size % 128) != 0)
+    {
+        std::fprintf(stderr, "hidden_size and inter_size must be multiples of 128 for fused configs.\n");
         return 1;
     }
 
@@ -203,6 +363,25 @@ int main(int argc, char** argv)
         = checked_mul_size(static_cast<size_t>(num_rows), static_cast<size_t>(args.inter_size), "fc1_output");
     size_t const fc2_output_elems
         = checked_mul_size(static_cast<size_t>(num_rows), static_cast<size_t>(args.hidden_size), "fc2_output");
+
+    bool do_verify = false;
+    if (args.verify)
+    {
+        bool const small_case = args.num_tokens <= 64 && args.hidden_size <= 256 && args.inter_size <= 256
+            && args.num_experts <= 8 && args.experts_per_token <= 4;
+        if (small_case)
+        {
+            do_verify = true;
+        }
+        else
+        {
+            std::printf("verify requested, but sizes are too large; skipping CPU reference.\n");
+        }
+    }
+
+    float const fc1_weight_scale = 0.01f;
+    float const fc2_weight_scale = do_verify ? 0.002f : 0.02f;
+    float const fc2_input_scale = do_verify ? 0.003f : 0.03f;
 
     std::vector<cutlass::half_t> h_input(static_cast<size_t>(args.num_tokens) * args.hidden_size);
     for (size_t i = 0; i < h_input.size(); ++i)
@@ -273,17 +452,41 @@ int main(int argc, char** argv)
 
     cutlass::half_t* d_fc1_weight = nullptr;
     cutlass::half_t* d_fc2_weight = nullptr;
+    std::vector<cutlass::half_t> h_fc1_weight;
+    std::vector<cutlass::half_t> h_fc2_weight;
     if (args.run_fc1)
     {
         tensorrt_llm::common::check_cuda_error(
             cudaMalloc(&d_fc1_weight, sizeof(cutlass::half_t) * fc1_weight_elems));
-        fill_device_half(d_fc1_weight, fc1_weight_elems, 0.01f, stream);
+        if (do_verify)
+        {
+            h_fc1_weight.resize(fc1_weight_elems);
+            fill_host_half(h_fc1_weight.data(), fc1_weight_elems, fc1_weight_scale);
+            tensorrt_llm::common::check_cuda_error(
+                cudaMemcpy(d_fc1_weight, h_fc1_weight.data(), sizeof(cutlass::half_t) * fc1_weight_elems,
+                    cudaMemcpyHostToDevice));
+        }
+        else
+        {
+            fill_device_half(d_fc1_weight, fc1_weight_elems, fc1_weight_scale, stream);
+        }
     }
     if (args.run_fc2)
     {
         tensorrt_llm::common::check_cuda_error(
             cudaMalloc(&d_fc2_weight, sizeof(cutlass::half_t) * fc2_weight_elems));
-        fill_device_half(d_fc2_weight, fc2_weight_elems, 0.02f, stream);
+        if (do_verify)
+        {
+            h_fc2_weight.resize(fc2_weight_elems);
+            fill_host_half(h_fc2_weight.data(), fc2_weight_elems, fc2_weight_scale);
+            tensorrt_llm::common::check_cuda_error(
+                cudaMemcpy(d_fc2_weight, h_fc2_weight.data(), sizeof(cutlass::half_t) * fc2_weight_elems,
+                    cudaMemcpyHostToDevice));
+        }
+        else
+        {
+            fill_device_half(d_fc2_weight, fc2_weight_elems, fc2_weight_scale, stream);
+        }
     }
 
     cutlass::half_t* d_fc1_output = nullptr;
@@ -294,6 +497,7 @@ int main(int argc, char** argv)
     }
 
     cutlass::half_t* d_fc2_input = nullptr;
+    std::vector<cutlass::half_t> h_fc2_input;
     if (args.run_fc2)
     {
         if (args.run_fc1)
@@ -304,7 +508,18 @@ int main(int argc, char** argv)
         {
             tensorrt_llm::common::check_cuda_error(
                 cudaMalloc(&d_fc2_input, sizeof(cutlass::half_t) * fc1_output_elems));
-            fill_device_half(d_fc2_input, fc1_output_elems, 0.03f, stream);
+            if (do_verify)
+            {
+                h_fc2_input.resize(fc1_output_elems);
+                fill_host_half(h_fc2_input.data(), fc1_output_elems, fc2_input_scale);
+                tensorrt_llm::common::check_cuda_error(
+                    cudaMemcpy(d_fc2_input, h_fc2_input.data(), sizeof(cutlass::half_t) * fc1_output_elems,
+                        cudaMemcpyHostToDevice));
+            }
+            else
+            {
+                fill_device_half(d_fc2_input, fc1_output_elems, fc2_input_scale, stream);
+            }
         }
     }
 
@@ -337,19 +552,81 @@ int main(int argc, char** argv)
 
     tensorrt_llm::common::check_cuda_error(cudaStreamSynchronize(stream));
 
+    std::vector<cutlass::half_t> h_fc1_out;
+    std::vector<cutlass::half_t> h_fc2_out;
+
     if (args.run_fc1)
     {
-        std::vector<cutlass::half_t> h_fc1_out(std::min<size_t>(fc1_output_elems, 1024));
+        size_t const copy_elems = do_verify ? fc1_output_elems : std::min<size_t>(fc1_output_elems, 1024);
+        h_fc1_out.resize(copy_elems);
         tensorrt_llm::common::check_cuda_error(cudaMemcpy(
             h_fc1_out.data(), d_fc1_output, sizeof(cutlass::half_t) * h_fc1_out.size(), cudaMemcpyDeviceToHost));
-        std::printf("fc1 checksum=%.6f\n", checksum_first(h_fc1_out.data(), h_fc1_out.size()));
+        if (!do_verify)
+        {
+            std::printf("fc1 checksum=%.6f\n", checksum_first(h_fc1_out.data(), h_fc1_out.size()));
+        }
     }
     if (args.run_fc2)
     {
-        std::vector<cutlass::half_t> h_fc2_out(std::min<size_t>(fc2_output_elems, 1024));
+        size_t const copy_elems = do_verify ? fc2_output_elems : std::min<size_t>(fc2_output_elems, 1024);
+        h_fc2_out.resize(copy_elems);
         tensorrt_llm::common::check_cuda_error(cudaMemcpy(
             h_fc2_out.data(), d_fc2_output, sizeof(cutlass::half_t) * h_fc2_out.size(), cudaMemcpyDeviceToHost));
-        std::printf("fc2 checksum=%.6f\n", checksum_first(h_fc2_out.data(), h_fc2_out.size()));
+        if (!do_verify)
+        {
+            std::printf("fc2 checksum=%.6f\n", checksum_first(h_fc2_out.data(), h_fc2_out.size()));
+        }
+    }
+
+    if (do_verify)
+    {
+        std::vector<float> fc1_ref_fp32;
+        std::vector<cutlass::half_t> fc1_ref_half;
+        std::vector<float> fc2_ref_fp32;
+
+        if (args.run_fc1)
+        {
+            fc1_reference(fc1_ref_fp32, fc1_ref_half, h_expanded_input, h_fc1_weight, total_tokens_including_expert,
+                args.num_experts, num_rows, args.inter_size, args.hidden_size);
+
+            std::vector<float> fc1_ref_fp16(fc1_ref_half.size());
+            for (size_t i = 0; i < fc1_ref_half.size(); ++i)
+            {
+                fc1_ref_fp16[i] = static_cast<float>(fc1_ref_half[i]);
+            }
+
+            find_nonfinite_half(h_fc1_out.data(), h_fc1_out.size(), "fc1_gpu");
+            find_nonfinite_float(fc1_ref_fp16.data(), fc1_ref_fp16.size(), "fc1_ref");
+            DiffStats stats = compare_half_to_float(h_fc1_out.data(), fc1_ref_fp16.data(), h_fc1_out.size());
+            float const abs_tol = 5e-2f;
+            float const rel_tol = 5e-2f;
+            bool const pass = (stats.max_abs <= abs_tol) || (stats.max_rel <= rel_tol);
+            std::printf("fc1 verify: max_abs=%.6f max_rel=%.6f %s\n", stats.max_abs, stats.max_rel,
+                pass ? "PASS" : "FAIL");
+        }
+
+        if (args.run_fc2)
+        {
+            std::vector<cutlass::half_t> const& fc2_input = args.run_fc1 ? h_fc1_out : h_fc2_input;
+            fc2_reference(fc2_ref_fp32, fc2_input, h_fc2_weight, total_tokens_including_expert, args.num_experts,
+                num_rows, args.hidden_size, args.inter_size);
+
+            std::vector<float> fc2_ref_fp16(fc2_ref_fp32.size());
+            for (size_t i = 0; i < fc2_ref_fp32.size(); ++i)
+            {
+                cutlass::half_t hval = cutlass::half_t(fc2_ref_fp32[i]);
+                fc2_ref_fp16[i] = static_cast<float>(hval);
+            }
+
+            find_nonfinite_half(h_fc2_out.data(), h_fc2_out.size(), "fc2_gpu");
+            find_nonfinite_float(fc2_ref_fp16.data(), fc2_ref_fp16.size(), "fc2_ref");
+            DiffStats stats = compare_half_to_float(h_fc2_out.data(), fc2_ref_fp16.data(), h_fc2_out.size());
+            float const abs_tol = 5e-2f;
+            float const rel_tol = 5e-2f;
+            bool const pass = (stats.max_abs <= abs_tol) || (stats.max_rel <= rel_tol);
+            std::printf("fc2 verify: max_abs=%.6f max_rel=%.6f %s\n", stats.max_abs, stats.max_rel,
+                pass ? "PASS" : "FAIL");
+        }
     }
 
     tensorrt_llm::common::check_cuda_error(cudaFree(d_input));
