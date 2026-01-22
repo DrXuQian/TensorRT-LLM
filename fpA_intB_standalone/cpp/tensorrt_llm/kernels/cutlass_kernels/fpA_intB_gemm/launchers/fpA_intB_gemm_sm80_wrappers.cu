@@ -8,7 +8,7 @@
 #include "tensorrt_llm/common/cudaUtils.h"
 #include "tensorrt_llm/kernels/cutlass_kernels/cutlass_heuristic.h"
 #include "tensorrt_llm/kernels/cutlass_kernels/fpA_intB_gemm/fpA_intB_gemm.h"
-#include "tensorrt_llm/kernels/weightOnlyBatchedGemv/kernelLauncher.h"
+#include "tensorrt_llm/kernels/weightOnlyBatchedGemv/kernelDispatcher.h"
 
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
@@ -91,6 +91,7 @@ float profile_tactic(int m, int n, int k, int group_size, CutlassGemmConfig cons
     int8_t const* d_b, half const* d_scales, half const* d_zeros, half* d_c, void* workspace, size_t workspace_bytes,
     cudaStream_t stream, int sm)
 {
+    (void) sm;
     constexpr int warmup = 5;
     constexpr int runs = 10;
 
@@ -99,7 +100,10 @@ float profile_tactic(int m, int n, int k, int group_size, CutlassGemmConfig cons
         {
             kernels::weight_only::Params params{d_a, nullptr, d_b, d_scales, d_zeros, nullptr, d_c, 1.0f, m, n, k,
                 group_size, kernels::weight_only::KernelType::FP16Int4Groupwise, false};
-            kernels::weight_only::kernel_launcher(sm, params, stream);
+            kernels::weight_only::select_gs<true,
+                kernels::weight_only::KernelDetails<kernels::weight_only::FP16DetailsA,
+                    kernels::weight_only::Int4DetailsW, kernels::weight_only::ColumnMajorInterleaved, true, 64>>(
+                params, stream);
         }
         else
         {
@@ -315,7 +319,9 @@ void fpA_intB_gemm_fp16_int4_gptq_with_config(half const* A, int8_t const* B, ha
     {
         kernels::weight_only::Params params{A, nullptr, B, weight_scales, weight_zero_points, nullptr, C, 1.0f, m, n, k,
             group_size, kernels::weight_only::KernelType::FP16Int4Groupwise, false};
-        kernels::weight_only::kernel_launcher(sm, params, stream);
+        kernels::weight_only::select_gs<true,
+            kernels::weight_only::KernelDetails<kernels::weight_only::FP16DetailsA, kernels::weight_only::Int4DetailsW,
+                kernels::weight_only::ColumnMajorInterleaved, true, 64>>(params, stream);
         return;
     }
 
