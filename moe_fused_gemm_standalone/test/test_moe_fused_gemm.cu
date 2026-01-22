@@ -333,9 +333,9 @@ int main(int argc, char** argv)
         std::fprintf(stderr, "hidden_size and inter_size must be multiples of 8.\n");
         return 1;
     }
-    if ((args.hidden_size % 128) != 0 || (args.inter_size % 128) != 0)
+    if ((args.hidden_size % 64) != 0 || (args.inter_size % 64) != 0)
     {
-        std::fprintf(stderr, "hidden_size and inter_size must be multiples of 128 for fused configs.\n");
+        std::fprintf(stderr, "hidden_size and inter_size must be multiples of 64 for fused configs.\n");
         return 1;
     }
 
@@ -536,18 +536,48 @@ int main(int argc, char** argv)
     tensorrt_llm::common::check_cuda_error(
         cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, device));
 
+    tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig fc1_cfg{};
+    tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig fc2_cfg{};
     if (args.run_fc1)
     {
-        tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc1_swiglu_fp16(d_input, d_fc1_weight, nullptr,
-            true, d_fc1_output, d_total_tokens, num_rows, args.inter_size, args.hidden_size, args.num_experts, sm_count,
-            stream, nullptr);
+        bool ok = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_select_config_fc1(fc1_cfg,
+            total_tokens_including_expert.data(), args.num_experts, num_rows, args.inter_size, args.hidden_size,
+            sm_count);
+        if (!ok)
+        {
+            std::fprintf(stderr, "No valid fused config found for FC1.\n");
+            return 1;
+        }
+        std::printf("fc1 config: tile_m=%d tile_n=%d tile_k=%d stages=%d\n", fc1_cfg.tile_m, fc1_cfg.tile_n,
+            fc1_cfg.tile_k, fc1_cfg.stages);
     }
 
     if (args.run_fc2)
     {
-        tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc2_identity_fp16(d_fc2_input, d_fc2_weight, nullptr,
-            true, d_fc2_output, d_total_tokens, num_rows, args.hidden_size, args.inter_size, args.num_experts, sm_count,
-            stream, nullptr);
+        bool ok = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_select_config_fc2(fc2_cfg,
+            total_tokens_including_expert.data(), args.num_experts, num_rows, args.hidden_size, args.inter_size,
+            sm_count);
+        if (!ok)
+        {
+            std::fprintf(stderr, "No valid fused config found for FC2.\n");
+            return 1;
+        }
+        std::printf("fc2 config: tile_m=%d tile_n=%d tile_k=%d stages=%d\n", fc2_cfg.tile_m, fc2_cfg.tile_n,
+            fc2_cfg.tile_k, fc2_cfg.stages);
+    }
+
+    if (args.run_fc1)
+    {
+        tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc1_swiglu_fp16_with_config(d_input, d_fc1_weight,
+            nullptr, true, d_fc1_output, d_total_tokens, num_rows, args.inter_size, args.hidden_size, args.num_experts,
+            sm_count, stream, nullptr, fc1_cfg);
+    }
+
+    if (args.run_fc2)
+    {
+        tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc2_identity_fp16_with_config(d_fc2_input,
+            d_fc2_weight, nullptr, true, d_fc2_output, d_total_tokens, num_rows, args.hidden_size, args.inter_size,
+            args.num_experts, sm_count, stream, nullptr, fc2_cfg);
     }
 
     tensorrt_llm::common::check_cuda_error(cudaStreamSynchronize(stream));
