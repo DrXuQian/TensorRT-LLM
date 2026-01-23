@@ -423,7 +423,8 @@ void CutlassFpAIntBGemmRunner<ActivationType, WeightType, QuantOp, ScaleZeroType
     char* workspace_ptr, const size_t workspace_bytes, cudaStream_t stream, int* occupancy)
 {
     TLLM_LOG_DEBUG(__PRETTY_FUNCTION__);
-    if (sm_ >= 80 && sm_ < 90)
+    // Treat SM110 as SM80 fallback (standalone path).
+    if ((sm_ >= 80 && sm_ < 90) || sm_ == 110)
     {
         dispatch_gemm_to_cutlass<ActivationType, WeightType, ScaleZeroType, BiasType, OutputType, cutlass::arch::Sm80,
             QuantOp, EpilogueTag>(A, B, weight_scales, weight_zero_points, biases, alpha, C, m, n, k, group_size,
@@ -431,7 +432,8 @@ void CutlassFpAIntBGemmRunner<ActivationType, WeightType, QuantOp, ScaleZeroType
         return;
     }
     throw std::runtime_error(
-        "[TensorRT LLM Error][CutlassFpAIntBGemmRunner][dispatch_to_arch] Standalone build supports SM80 only.");
+        "[TensorRT LLM Error][CutlassFpAIntBGemmRunner][dispatch_to_arch] Standalone build supports SM80 (and SM110 via "
+        "SM80 fallback) only.");
 }
 
 template <typename ActivationType, typename WeightType, cutlass::WeightOnlyQuantOp QuantOp, typename ScaleZeroType,
