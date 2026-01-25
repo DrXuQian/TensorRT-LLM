@@ -69,6 +69,22 @@ moe_fused_gemm_standalone/build/test_moe_fused_gemm \
   --num_experts=32 --experts_per_token=4 --op=both
 ```
 
+List the supported SM80 configs:
+
+```
+moe_fused_gemm_standalone/build/test_moe_fused_gemm --list_configs
+```
+
+Force a specific config (applies to FC1/FC2):
+
+```
+moe_fused_gemm_standalone/build/test_moe_fused_gemm \
+  --num_tokens=256 --hidden_size=1024 --inter_size=768 \
+  --num_experts=32 --experts_per_token=4 --op=both \
+  --config=16x128x64x3
+```
+The `--config` flag also accepts comma-separated values, e.g. `--config=16,128,64,3`.
+
 CPU reference check (small shapes only):
 
 ```

@@ -36,26 +36,37 @@ struct FusedConfig
     LauncherFn launcher;
 };
 
+#define SM80_FUSED_CONFIG_LIST(X)                                                                                      \
+    X(16, 128, 64, 2)                                                                                                  \
+    X(16, 128, 64, 3)                                                                                                  \
+    X(16, 128, 64, 4)                                                                                                  \
+    X(16, 256, 64, 2)                                                                                                  \
+    X(16, 256, 64, 3)                                                                                                  \
+    X(16, 256, 64, 4)                                                                                                  \
+    X(32, 128, 64, 2)                                                                                                  \
+    X(32, 128, 64, 3)                                                                                                  \
+    X(32, 128, 64, 4)                                                                                                  \
+    X(64, 128, 64, 2)                                                                                                  \
+    X(64, 128, 64, 3)                                                                                                  \
+    X(64, 128, 64, 4)                                                                                                  \
+    X(128, 128, 64, 2)                                                                                                 \
+    X(128, 128, 64, 3)                                                                                                 \
+    X(128, 128, 64, 4)
+
+static const Sm80FusedMoeGemmConfig kAllConfigs[] = {
+#define MAKE_CFG(m, n, k, s) {m, n, k, s},
+    SM80_FUSED_CONFIG_LIST(MAKE_CFG)
+#undef MAKE_CFG
+};
+
 template <typename EpilogueTag>
 const FusedConfig* select_config(int64_t const* total_tokens_including_expert, int num_experts, int64_t num_rows,
     int64_t gemm_n, int64_t gemm_k, int multi_processor_count)
 {
     static const FusedConfig kConfigs[] = {
-        {16, 128, 64, 2, &launch_config<16, 128, 64, 2, EpilogueTag>},
-        {16, 128, 64, 3, &launch_config<16, 128, 64, 3, EpilogueTag>},
-        {16, 128, 64, 4, &launch_config<16, 128, 64, 4, EpilogueTag>},
-        {16, 256, 64, 2, &launch_config<16, 256, 64, 2, EpilogueTag>},
-        {16, 256, 64, 3, &launch_config<16, 256, 64, 3, EpilogueTag>},
-        {16, 256, 64, 4, &launch_config<16, 256, 64, 4, EpilogueTag>},
-        {32, 128, 64, 2, &launch_config<32, 128, 64, 2, EpilogueTag>},
-        {32, 128, 64, 3, &launch_config<32, 128, 64, 3, EpilogueTag>},
-        {32, 128, 64, 4, &launch_config<32, 128, 64, 4, EpilogueTag>},
-        {64, 128, 64, 2, &launch_config<64, 128, 64, 2, EpilogueTag>},
-        {64, 128, 64, 3, &launch_config<64, 128, 64, 3, EpilogueTag>},
-        {64, 128, 64, 4, &launch_config<64, 128, 64, 4, EpilogueTag>},
-        {128, 128, 64, 2, &launch_config<128, 128, 64, 2, EpilogueTag>},
-        {128, 128, 64, 3, &launch_config<128, 128, 64, 3, EpilogueTag>},
-        {128, 128, 64, 4, &launch_config<128, 128, 64, 4, EpilogueTag>},
+#define MAKE_LAUNCH(m, n, k, s) {m, n, k, s, &launch_config<m, n, k, s, EpilogueTag>},
+        SM80_FUSED_CONFIG_LIST(MAKE_LAUNCH)
+#undef MAKE_LAUNCH
     };
 
     if (gemm_n <= 0 || gemm_k <= 0 || num_rows <= 0 || multi_processor_count <= 0)
@@ -156,6 +167,28 @@ const FusedConfig* select_config(int64_t const* total_tokens_including_expert, i
     return best;
 }
 } // namespace
+
+size_t sm80_fused_moe_get_all_configs(Sm80FusedMoeGemmConfig const** configs)
+{
+    if (configs != nullptr)
+    {
+        *configs = kAllConfigs;
+    }
+    return sizeof(kAllConfigs) / sizeof(kAllConfigs[0]);
+}
+
+bool sm80_fused_moe_is_supported_config(Sm80FusedMoeGemmConfig const& config)
+{
+    for (size_t i = 0; i < sizeof(kAllConfigs) / sizeof(kAllConfigs[0]); ++i)
+    {
+        if (kAllConfigs[i].tile_m == config.tile_m && kAllConfigs[i].tile_n == config.tile_n
+            && kAllConfigs[i].tile_k == config.tile_k && kAllConfigs[i].stages == config.stages)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 bool sm80_fused_moe_select_config_fc1(Sm80FusedMoeGemmConfig& out_config, int64_t const* total_tokens_including_expert,
     int num_experts, int64_t num_rows, int64_t gemm_n, int64_t gemm_k, int multi_processor_count)

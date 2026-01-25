@@ -27,13 +27,17 @@ struct Args
     bool run_fc1 = true;
     bool run_fc2 = true;
     bool verify = false;
+    bool list_configs = false;
+    bool force_config = false;
+    tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig forced_config{};
 };
 
 void print_usage(char const* name)
 {
     std::printf(
         "Usage: %s [--num_tokens=N] [--hidden_size=N] [--inter_size=N] [--num_experts=N] "
-        "[--experts_per_token=N] [--op=fc1|fc2|both] [--verify]\n",
+        "[--experts_per_token=N] [--op=fc1|fc2|both] [--verify] [--list_configs] "
+        "[--config=tile_m,tile_n,tile_k,stages]\n",
         name);
 }
 
@@ -57,6 +61,54 @@ bool parse_int(char const* arg, char const* key, int& out)
     }
     out = std::strtol(arg + len, nullptr, 10);
     return true;
+}
+
+bool parse_config_spec(char const* spec,
+    tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig& out)
+{
+    if (spec == nullptr || *spec == '\0')
+    {
+        return false;
+    }
+    std::string normalized(spec);
+    for (char& ch : normalized)
+    {
+        if (ch == 'x' || ch == 'X')
+        {
+            ch = ',';
+        }
+    }
+    int tile_m = 0;
+    int tile_n = 0;
+    int tile_k = 0;
+    int stages = 0;
+    if (std::sscanf(normalized.c_str(), "%d,%d,%d,%d", &tile_m, &tile_n, &tile_k, &stages) != 4)
+    {
+        return false;
+    }
+    if (tile_m <= 0 || tile_n <= 0 || tile_k <= 0 || stages <= 0)
+    {
+        return false;
+    }
+    out.tile_m = tile_m;
+    out.tile_n = tile_n;
+    out.tile_k = tile_k;
+    out.stages = stages;
+    return true;
+}
+
+void print_all_configs()
+{
+    using Config = tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig;
+    Config const* configs = nullptr;
+    size_t const count = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_get_all_configs(&configs);
+    std::printf("Supported SM80 fused configs (%zu):\n", count);
+    for (size_t i = 0; i < count; ++i)
+    {
+        Config const& cfg = configs[i];
+        std::printf("  %zu: tile_m=%d tile_n=%d tile_k=%d stages=%d\n", i, cfg.tile_m, cfg.tile_n, cfg.tile_k,
+            cfg.stages);
+    }
 }
 
 void parse_args(int argc, char** argv, Args& args)
@@ -112,6 +164,23 @@ void parse_args(int argc, char** argv, Args& args)
                 print_usage(argv[0]);
                 std::exit(1);
             }
+            continue;
+        }
+        if (std::strcmp(argv[i], "--list_configs") == 0)
+        {
+            args.list_configs = true;
+            continue;
+        }
+        if (std::strncmp(argv[i], "--config=", 9) == 0)
+        {
+            if (!parse_config_spec(argv[i] + 9, args.forced_config))
+            {
+                std::fprintf(stderr,
+                    "Invalid --config format. Expected --config=tile_m,tile_n,tile_k,stages (or 16x128x64x2).\n");
+                print_usage(argv[0]);
+                std::exit(1);
+            }
+            args.force_config = true;
             continue;
         }
         if (std::strcmp(argv[i], "--verify") == 0)
@@ -316,6 +385,12 @@ int main(int argc, char** argv)
 {
     Args args;
     parse_args(argc, argv, args);
+
+    if (args.list_configs)
+    {
+        print_all_configs();
+        return 0;
+    }
 
     if (args.num_tokens <= 0 || args.hidden_size <= 0 || args.inter_size <= 0 || args.num_experts <= 0
         || args.experts_per_token <= 0)
@@ -536,17 +611,35 @@ int main(int argc, char** argv)
     tensorrt_llm::common::check_cuda_error(
         cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, device));
 
+    if (args.force_config)
+    {
+        if (!tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_is_supported_config(args.forced_config))
+        {
+            std::fprintf(stderr, "Requested config is not supported. Use --list_configs to see valid options.\n");
+            return 1;
+        }
+        std::printf("forcing config: tile_m=%d tile_n=%d tile_k=%d stages=%d\n", args.forced_config.tile_m,
+            args.forced_config.tile_n, args.forced_config.tile_k, args.forced_config.stages);
+    }
+
     tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig fc1_cfg{};
     tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig fc2_cfg{};
     if (args.run_fc1)
     {
-        bool ok = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_select_config_fc1(fc1_cfg,
-            total_tokens_including_expert.data(), args.num_experts, num_rows, args.inter_size, args.hidden_size,
-            sm_count);
-        if (!ok)
+        if (args.force_config)
         {
-            std::fprintf(stderr, "No valid fused config found for FC1.\n");
-            return 1;
+            fc1_cfg = args.forced_config;
+        }
+        else
+        {
+            bool ok = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_select_config_fc1(fc1_cfg,
+                total_tokens_including_expert.data(), args.num_experts, num_rows, args.inter_size, args.hidden_size,
+                sm_count);
+            if (!ok)
+            {
+                std::fprintf(stderr, "No valid fused config found for FC1.\n");
+                return 1;
+            }
         }
         std::printf("fc1 config: tile_m=%d tile_n=%d tile_k=%d stages=%d\n", fc1_cfg.tile_m, fc1_cfg.tile_n,
             fc1_cfg.tile_k, fc1_cfg.stages);
@@ -554,13 +647,20 @@ int main(int argc, char** argv)
 
     if (args.run_fc2)
     {
-        bool ok = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_select_config_fc2(fc2_cfg,
-            total_tokens_including_expert.data(), args.num_experts, num_rows, args.hidden_size, args.inter_size,
-            sm_count);
-        if (!ok)
+        if (args.force_config)
         {
-            std::fprintf(stderr, "No valid fused config found for FC2.\n");
-            return 1;
+            fc2_cfg = args.forced_config;
+        }
+        else
+        {
+            bool ok = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_select_config_fc2(fc2_cfg,
+                total_tokens_including_expert.data(), args.num_experts, num_rows, args.hidden_size, args.inter_size,
+                sm_count);
+            if (!ok)
+            {
+                std::fprintf(stderr, "No valid fused config found for FC2.\n");
+                return 1;
+            }
         }
         std::printf("fc2 config: tile_m=%d tile_n=%d tile_k=%d stages=%d\n", fc2_cfg.tile_m, fc2_cfg.tile_n,
             fc2_cfg.tile_k, fc2_cfg.stages);

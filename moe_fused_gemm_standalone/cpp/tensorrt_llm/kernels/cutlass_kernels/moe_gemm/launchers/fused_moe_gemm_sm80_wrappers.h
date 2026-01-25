@@ -21,6 +21,10 @@ struct Sm80FusedMoeGemmConfig
     int stages = 0;
 };
 
+size_t sm80_fused_moe_get_all_configs(Sm80FusedMoeGemmConfig const** configs);
+
+bool sm80_fused_moe_is_supported_config(Sm80FusedMoeGemmConfig const& config);
+
 bool sm80_fused_moe_select_config_fc1(Sm80FusedMoeGemmConfig& out_config, int64_t const* total_tokens_including_expert,
     int num_experts, int64_t num_rows, int64_t gemm_n, int64_t gemm_k, int multi_processor_count);
 
