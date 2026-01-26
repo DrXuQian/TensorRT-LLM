@@ -19,7 +19,8 @@ What I changed / extracted
 - Added wrapper APIs with FP16 kernel variants + an occupancy-based selector:
   - `fused_moe_gemm_sm80_wrappers.{h,cu}`
 - Added a standalone test (`test/test_moe_fused_gemm.cu`) with CLI args, a
-  one-time config search, and an optional CPU reference for small cases.
+  one-time config search (or optional profiling-based selection), basic
+  benchmarking knobs, and an optional CPU reference for small cases.
 - Patched `fused_moe_gemm_launcher_sm80.inl` error formatting to avoid
   `std::string` so it works with the minimal TLLM_CHECK stub.
 
@@ -36,8 +37,9 @@ What is NOT included (limitations)
   - no BF16, FP8, FP4, INT8/INT4, quantized weights, or DeepSeek blockscale
 - No SM90/TMA paths
 - No full tactic/heuristic system outside the fused SM80 list:
-  - selector follows TRT-LLM's occupancy + wave scoring logic, but only over
-    the fused SM80 configs (no non-fused fallback).
+  - the default selector follows TRT-LLM's occupancy + wave scoring logic over
+    the fused SM80 configs only (no non-fused fallback).
+  - optional `--profile` mode benchmarks the fused list and picks the best.
 - No LoRA, bias scaling, or extra fusion paths (only optional bias pointer)
 
 Input/weight layout assumptions
@@ -66,7 +68,7 @@ Example (small):
 ```
 moe_fused_gemm_standalone/build/test_moe_fused_gemm \
   --num_tokens=256 --hidden_size=1024 --inter_size=768 \
-  --num_experts=32 --experts_per_token=4 --op=both
+  --num_experts=32 --experts_per_token=4 --op=both --warmup=10 --iters=100
 ```
 
 List the supported SM80 configs:
@@ -81,9 +83,34 @@ Force a specific config (applies to FC1/FC2):
 moe_fused_gemm_standalone/build/test_moe_fused_gemm \
   --num_tokens=256 --hidden_size=1024 --inter_size=768 \
   --num_experts=32 --experts_per_token=4 --op=both \
-  --config=16x128x64x3
+  --config=16x128x64x3 --warmup=10 --iters=100
 ```
 The `--config` flag also accepts comma-separated values, e.g. `--config=16,128,64,3`.
+
+Profile all SM80 fused configs and pick the fastest:
+
+```
+moe_fused_gemm_standalone/build/test_moe_fused_gemm \
+  --num_tokens=3823 --hidden_size=2048 --inter_size=768 \
+  --num_experts=128 --experts_per_token=8 --op=both \
+  --profile --warmup=10 --iters=200
+```
+
+Nsight Compute mode (`--ncu`)
+-----------------------------
+`--ncu` disables the separate warmup loop and sets a larger default iteration
+count (if you didn't pass `--iters=...`). It requires `--config=...` to avoid
+any config search/profiling noise.
+
+Example:
+
+```
+# 1) Pick a config first (prints the selected config)
+moe_fused_gemm_standalone/build/test_moe_fused_gemm --op=fc1
+
+# 2) Rerun with --ncu and the chosen config
+moe_fused_gemm_standalone/build/test_moe_fused_gemm --op=fc1 --ncu --iters=2000 --config=16x128x64x3
+```
 
 CPU reference check (small shapes only):
 
@@ -91,6 +118,21 @@ CPU reference check (small shapes only):
 moe_fused_gemm_standalone/build/test_moe_fused_gemm \
   --num_tokens=16 --hidden_size=128 --inter_size=128 \
   --num_experts=4 --experts_per_token=2 --op=both --verify
+```
+
+Debug logging
+-------------
+To print per-config filtering/scoring details during selection, enable:
+
+- CLI: `--debug`
+- or env: `MOE_FUSED_PROFILE_LOG=1`
+
+Traverse all configs (no internal selection)
+-------------------------------------------
+This helper runs the binary once per config (forced via `--config=...`):
+
+```
+moe_fused_gemm_standalone/scripts/run_all_configs.sh --op fc1 --iters 200 --out results_fc1.txt
 ```
 
 Init + run usage (recommended)

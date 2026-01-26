@@ -4,7 +4,10 @@
 
 #include "tensorrt_llm/kernels/cutlass_kernels/moe_gemm/launchers/fused_moe_gemm_sm80_wrappers.h"
 #include "tensorrt_llm/kernels/cutlass_kernels/moe_gemm/launchers/fused_moe_gemm_launcher_sm80.inl"
+#include <cstdio>
+#include <cstdlib>
 #include <limits>
+#include <type_traits>
 #include <vector>
 
 TRTLLM_NAMESPACE_BEGIN
@@ -59,6 +62,33 @@ static const Sm80FusedMoeGemmConfig kAllConfigs[] = {
 #undef MAKE_CFG
 };
 
+bool profile_debug_enabled()
+{
+    char const* env = std::getenv("MOE_FUSED_PROFILE_LOG");
+    if (env == nullptr || env[0] == '\0')
+    {
+        return false;
+    }
+    return env[0] != '0';
+}
+
+template <typename EpilogueTag>
+constexpr char const* op_name()
+{
+    if constexpr (std::is_same_v<EpilogueTag, cutlass_extensions::EpilogueOpDefaultSilu>)
+    {
+        return "fc1";
+    }
+    else if constexpr (std::is_same_v<EpilogueTag, cutlass_extensions::EpilogueOpDefault>)
+    {
+        return "fc2";
+    }
+    else
+    {
+        return "unknown";
+    }
+}
+
 template <typename EpilogueTag>
 const FusedConfig* select_config(int64_t const* total_tokens_including_expert, int num_experts, int64_t num_rows,
     int64_t gemm_n, int64_t gemm_k, int multi_processor_count)
@@ -72,6 +102,15 @@ const FusedConfig* select_config(int64_t const* total_tokens_including_expert, i
     if (gemm_n <= 0 || gemm_k <= 0 || num_rows <= 0 || multi_processor_count <= 0)
     {
         return nullptr;
+    }
+
+    bool const debug = profile_debug_enabled();
+    if (debug)
+    {
+        std::fprintf(stderr,
+            "[fused_moe] select %s: num_rows=%lld gemm_n=%lld gemm_k=%lld experts=%d sm_count=%d\n", op_name<EpilogueTag>(),
+            static_cast<long long>(num_rows), static_cast<long long>(gemm_n), static_cast<long long>(gemm_k), num_experts,
+            multi_processor_count);
     }
 
     std::vector<int64_t> rows_per_expert;
@@ -105,6 +144,23 @@ const FusedConfig* select_config(int64_t const* total_tokens_including_expert, i
     {
         if ((gemm_n % cfg.tile_n) != 0 || (gemm_k % cfg.tile_k) != 0)
         {
+            if (debug)
+            {
+                if ((gemm_n % cfg.tile_n) != 0)
+                {
+                    std::fprintf(stderr,
+                        "[fused_moe] skip %s tile=%dx%dx%dx%d: gemm_n=%lld not divisible by %d\n",
+                        op_name<EpilogueTag>(), cfg.tile_m, cfg.tile_n, cfg.tile_k, cfg.stages,
+                        static_cast<long long>(gemm_n), cfg.tile_n);
+                }
+                else
+                {
+                    std::fprintf(stderr,
+                        "[fused_moe] skip %s tile=%dx%dx%dx%d: gemm_k=%lld not divisible by %d\n",
+                        op_name<EpilogueTag>(), cfg.tile_m, cfg.tile_n, cfg.tile_k, cfg.stages,
+                        static_cast<long long>(gemm_k), cfg.tile_k);
+                }
+            }
             continue;
         }
         int occupancy = 0;
@@ -112,11 +168,23 @@ const FusedConfig* select_config(int64_t const* total_tokens_including_expert, i
             &occupancy);
         if (occupancy == 0)
         {
+            if (debug)
+            {
+                std::fprintf(stderr, "[fused_moe] skip %s tile=%dx%dx%dx%d: occupancy=0\n", op_name<EpilogueTag>(),
+                    cfg.tile_m, cfg.tile_n, cfg.tile_k, cfg.stages);
+            }
             continue;
         }
 
         if (best != nullptr && max_rows < current_m_tile && current_m_tile < cfg.tile_m)
         {
+            if (debug)
+            {
+                std::fprintf(stderr,
+                    "[fused_moe] skip %s tile=%dx%dx%dx%d: prefer smaller tile_m (max_rows=%lld current_tile_m=%d)\n",
+                    op_name<EpilogueTag>(), cfg.tile_m, cfg.tile_n, cfg.tile_k, cfg.stages,
+                    static_cast<long long>(max_rows), current_m_tile);
+            }
             continue;
         }
 
@@ -140,6 +208,11 @@ const FusedConfig* select_config(int64_t const* total_tokens_including_expert, i
         int const ctas_per_wave = occupancy * multi_processor_count;
         if (ctas_per_wave <= 0)
         {
+            if (debug)
+            {
+                std::fprintf(stderr, "[fused_moe] skip %s tile=%dx%dx%dx%d: ctas_per_wave=%d\n", op_name<EpilogueTag>(),
+                    cfg.tile_m, cfg.tile_n, cfg.tile_k, cfg.stages, ctas_per_wave);
+            }
             continue;
         }
         int const num_waves_total = static_cast<int>((ctas_for_problem + ctas_per_wave - 1) / ctas_per_wave);
@@ -147,12 +220,23 @@ const FusedConfig* select_config(int64_t const* total_tokens_including_expert, i
         float const score = static_cast<float>(num_waves_total) - num_waves_fractional;
 
         float const score_slack = 0.1f;
+        if (debug)
+        {
+            std::fprintf(stderr,
+                "[fused_moe] cand %s tile=%dx%dx%dx%d occ=%d ctas=%lld ctas_per_wave=%d waves=%d score=%.4f\n",
+                op_name<EpilogueTag>(), cfg.tile_m, cfg.tile_n, cfg.tile_k, cfg.stages, occupancy,
+                static_cast<long long>(ctas_for_problem), ctas_per_wave, num_waves_total, score);
+        }
         if (score < best_score || ((best_waves > num_waves_total) && (score < best_score + score_slack)))
         {
             best_score = score;
             best_waves = num_waves_total;
             best = &cfg;
             current_m_tile = cfg.tile_m;
+            if (debug)
+            {
+                std::fprintf(stderr, "[fused_moe]   -> best\n");
+            }
         }
         else if (score == best_score && best != nullptr)
         {
@@ -161,7 +245,23 @@ const FusedConfig* select_config(int64_t const* total_tokens_including_expert, i
                 best = &cfg;
                 current_m_tile = cfg.tile_m;
                 best_waves = num_waves_total;
+                if (debug)
+                {
+                    std::fprintf(stderr, "[fused_moe]   -> best (tie-break)\n");
+                }
             }
+        }
+    }
+    if (debug)
+    {
+        if (best)
+        {
+            std::fprintf(stderr, "[fused_moe] selected %s tile=%dx%dx%dx%d\n", op_name<EpilogueTag>(), best->tile_m,
+                best->tile_n, best->tile_k, best->stages);
+        }
+        else
+        {
+            std::fprintf(stderr, "[fused_moe] selected %s: <none>\n", op_name<EpilogueTag>());
         }
     }
     return best;

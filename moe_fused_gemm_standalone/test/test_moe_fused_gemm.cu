@@ -24,6 +24,13 @@ struct Args
     int64_t inter_size = 768;
     int num_experts = 128;
     int experts_per_token = 8;
+    int warmup = 10;
+    int iters = 100;
+    bool warmup_set = false;
+    bool iters_set = false;
+    bool ncu_mode = false;
+    bool profile = false;
+    bool debug = false;
     bool run_fc1 = true;
     bool run_fc2 = true;
     bool verify = false;
@@ -37,6 +44,7 @@ void print_usage(char const* name)
     std::printf(
         "Usage: %s [--num_tokens=N] [--hidden_size=N] [--inter_size=N] [--num_experts=N] "
         "[--experts_per_token=N] [--op=fc1|fc2|both] [--verify] [--list_configs] "
+        "[--warmup=N] [--iters=N] [--profile] [--ncu] [--debug] "
         "[--config=tile_m,tile_n,tile_k,stages]\n",
         name);
 }
@@ -140,6 +148,16 @@ void parse_args(int argc, char** argv, Args& args)
         {
             continue;
         }
+        if (parse_int(argv[i], "--warmup=", args.warmup))
+        {
+            args.warmup_set = true;
+            continue;
+        }
+        if (parse_int(argv[i], "--iters=", args.iters))
+        {
+            args.iters_set = true;
+            continue;
+        }
         if (std::strncmp(argv[i], "--op=", 5) == 0)
         {
             std::string op = argv[i] + 5;
@@ -164,6 +182,21 @@ void parse_args(int argc, char** argv, Args& args)
                 print_usage(argv[0]);
                 std::exit(1);
             }
+            continue;
+        }
+        if (std::strcmp(argv[i], "--profile") == 0)
+        {
+            args.profile = true;
+            continue;
+        }
+        if (std::strcmp(argv[i], "--ncu") == 0)
+        {
+            args.ncu_mode = true;
+            continue;
+        }
+        if (std::strcmp(argv[i], "--debug") == 0)
+        {
+            args.debug = true;
             continue;
         }
         if (std::strcmp(argv[i], "--list_configs") == 0)
@@ -379,6 +412,180 @@ void fc2_reference(std::vector<float>& out_fp32, std::vector<cutlass::half_t> co
         }
     }
 }
+
+template <typename Fn>
+float benchmark_ms(Fn&& fn, int warmup, int iters, cudaStream_t stream)
+{
+    for (int i = 0; i < warmup; ++i)
+    {
+        fn();
+    }
+
+    cudaEvent_t start{};
+    cudaEvent_t stop{};
+    tensorrt_llm::common::check_cuda_error(cudaEventCreate(&start));
+    tensorrt_llm::common::check_cuda_error(cudaEventCreate(&stop));
+    tensorrt_llm::common::check_cuda_error(cudaEventRecord(start, stream));
+    for (int i = 0; i < iters; ++i)
+    {
+        fn();
+    }
+    tensorrt_llm::common::check_cuda_error(cudaEventRecord(stop, stream));
+    tensorrt_llm::common::check_cuda_error(cudaEventSynchronize(stop));
+
+    float ms = 0.0f;
+    tensorrt_llm::common::check_cuda_error(cudaEventElapsedTime(&ms, start, stop));
+    tensorrt_llm::common::check_cuda_error(cudaEventDestroy(start));
+    tensorrt_llm::common::check_cuda_error(cudaEventDestroy(stop));
+
+    return ms;
+}
+
+bool is_config_compatible(tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig const& cfg, int64_t gemm_n,
+    int64_t gemm_k)
+{
+    if (gemm_n <= 0 || gemm_k <= 0)
+    {
+        return false;
+    }
+    if (cfg.tile_m <= 0 || cfg.tile_n <= 0 || cfg.tile_k <= 0 || cfg.stages <= 0)
+    {
+        return false;
+    }
+    return (gemm_n % cfg.tile_n) == 0 && (gemm_k % cfg.tile_k) == 0;
+}
+
+bool profile_select_fc1(tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig& out_config,
+    cutlass::half_t const* A, cutlass::half_t const* B, cutlass::half_t* C, int64_t const* total_tokens,
+    int64_t num_rows, int64_t gemm_n, int64_t gemm_k, int num_experts, int sm_count, cudaStream_t stream)
+{
+    using Config = tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig;
+    Config const* configs = nullptr;
+    size_t const count = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_get_all_configs(&configs);
+    if (configs == nullptr || count == 0)
+    {
+        return false;
+    }
+
+    constexpr int warmup = 5;
+    constexpr int iters = 20;
+    float best_ms = std::numeric_limits<float>::infinity();
+    bool found = false;
+    Config best{};
+
+    std::printf("Profiling FC1 over %zu configs (%d warmup, %d iters)...\n", count, warmup, iters);
+    std::fflush(stdout);
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        Config const cfg = configs[i];
+        if (!is_config_compatible(cfg, gemm_n, gemm_k))
+        {
+            continue;
+        }
+
+        int occ = 0;
+        tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc1_swiglu_fp16_with_config(nullptr, nullptr,
+            nullptr, true, nullptr, total_tokens, num_rows, gemm_n, gemm_k, num_experts, sm_count, nullptr, &occ, cfg);
+        if (occ == 0)
+        {
+            continue;
+        }
+
+        auto run_once = [&]()
+        {
+            tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc1_swiglu_fp16_with_config(A, B, nullptr, true,
+                C, total_tokens, num_rows, gemm_n, gemm_k, num_experts, sm_count, stream, nullptr, cfg);
+        };
+
+        float const ms = benchmark_ms(run_once, warmup, iters, stream);
+        float const avg_ms = ms / static_cast<float>(iters);
+        std::printf("  tile=%dx%dx%dx%d  avg=%.4f ms\n", cfg.tile_m, cfg.tile_n, cfg.tile_k, cfg.stages, avg_ms);
+        std::fflush(stdout);
+
+        if (avg_ms < best_ms)
+        {
+            best_ms = avg_ms;
+            best = cfg;
+            found = true;
+        }
+    }
+
+    if (!found)
+    {
+        return false;
+    }
+    out_config = best;
+    std::printf("FC1 best: tile=%dx%dx%dx%d  avg=%.4f ms\n", best.tile_m, best.tile_n, best.tile_k, best.stages,
+        best_ms);
+    return true;
+}
+
+bool profile_select_fc2(tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig& out_config,
+    cutlass::half_t const* A, cutlass::half_t const* B, cutlass::half_t* C, int64_t const* total_tokens,
+    int64_t num_rows, int64_t gemm_n, int64_t gemm_k, int num_experts, int sm_count, cudaStream_t stream)
+{
+    using Config = tensorrt_llm::kernels::cutlass_kernels_oss::Sm80FusedMoeGemmConfig;
+    Config const* configs = nullptr;
+    size_t const count = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_get_all_configs(&configs);
+    if (configs == nullptr || count == 0)
+    {
+        return false;
+    }
+
+    constexpr int warmup = 5;
+    constexpr int iters = 20;
+    float best_ms = std::numeric_limits<float>::infinity();
+    bool found = false;
+    Config best{};
+
+    std::printf("Profiling FC2 over %zu configs (%d warmup, %d iters)...\n", count, warmup, iters);
+    std::fflush(stdout);
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        Config const cfg = configs[i];
+        if (!is_config_compatible(cfg, gemm_n, gemm_k))
+        {
+            continue;
+        }
+
+        int occ = 0;
+        tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc2_identity_fp16_with_config(nullptr, nullptr,
+            nullptr, true, nullptr, total_tokens, num_rows, gemm_n, gemm_k, num_experts, sm_count, nullptr, &occ, cfg);
+        if (occ == 0)
+        {
+            continue;
+        }
+
+        auto run_once = [&]()
+        {
+            tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc2_identity_fp16_with_config(A, B, nullptr, true,
+                C, total_tokens, num_rows, gemm_n, gemm_k, num_experts, sm_count, stream, nullptr, cfg);
+        };
+
+        float const ms = benchmark_ms(run_once, warmup, iters, stream);
+        float const avg_ms = ms / static_cast<float>(iters);
+        std::printf("  tile=%dx%dx%dx%d  avg=%.4f ms\n", cfg.tile_m, cfg.tile_n, cfg.tile_k, cfg.stages, avg_ms);
+        std::fflush(stdout);
+
+        if (avg_ms < best_ms)
+        {
+            best_ms = avg_ms;
+            best = cfg;
+            found = true;
+        }
+    }
+
+    if (!found)
+    {
+        return false;
+    }
+    out_config = best;
+    std::printf("FC2 best: tile=%dx%dx%dx%d  avg=%.4f ms\n", best.tile_m, best.tile_n, best.tile_k, best.stages,
+        best_ms);
+    return true;
+}
 } // namespace
 
 int main(int argc, char** argv)
@@ -392,10 +599,38 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    if (args.debug)
+    {
+        setenv("MOE_FUSED_PROFILE_LOG", "1", 1);
+    }
+
+    if (args.ncu_mode)
+    {
+        // In ncu mode we avoid a separate warmup loop, and rely on ncu's
+        // --launch-skip/--launch-count to profile a single steady-state launch.
+        args.warmup = 0;
+        if (!args.iters_set)
+        {
+            args.iters = 1000;
+        }
+        if (!args.force_config)
+        {
+            std::fprintf(stderr,
+                "Error: --ncu requires --config=... to avoid internal config search/profiling.\n"
+                "       First run without --ncu to pick configs, then rerun with --ncu --config=...\n");
+            return 1;
+        }
+    }
+
     if (args.num_tokens <= 0 || args.hidden_size <= 0 || args.inter_size <= 0 || args.num_experts <= 0
         || args.experts_per_token <= 0)
     {
         std::fprintf(stderr, "All sizes must be positive.\n");
+        return 1;
+    }
+    if (args.warmup < 0 || args.iters <= 0)
+    {
+        std::fprintf(stderr, "warmup must be >= 0 and iters must be > 0.\n");
         return 1;
     }
     if (args.experts_per_token > args.num_experts)
@@ -618,6 +853,22 @@ int main(int argc, char** argv)
             std::fprintf(stderr, "Requested config is not supported. Use --list_configs to see valid options.\n");
             return 1;
         }
+        if (args.run_fc1 && !is_config_compatible(args.forced_config, args.inter_size, args.hidden_size))
+        {
+            std::fprintf(stderr,
+                "Requested config is not compatible with FC1 shape (gemm_n=%ld gemm_k=%ld). "
+                "Require gemm_n%%tile_n==0 and gemm_k%%tile_k==0.\n",
+                args.inter_size, args.hidden_size);
+            return 1;
+        }
+        if (args.run_fc2 && !is_config_compatible(args.forced_config, args.hidden_size, args.inter_size))
+        {
+            std::fprintf(stderr,
+                "Requested config is not compatible with FC2 shape (gemm_n=%ld gemm_k=%ld). "
+                "Require gemm_n%%tile_n==0 and gemm_k%%tile_k==0.\n",
+                args.hidden_size, args.inter_size);
+            return 1;
+        }
         std::printf("forcing config: tile_m=%d tile_n=%d tile_k=%d stages=%d\n", args.forced_config.tile_m,
             args.forced_config.tile_n, args.forced_config.tile_k, args.forced_config.stages);
     }
@@ -629,6 +880,16 @@ int main(int argc, char** argv)
         if (args.force_config)
         {
             fc1_cfg = args.forced_config;
+        }
+        else if (args.profile)
+        {
+            bool ok = profile_select_fc1(fc1_cfg, d_input, d_fc1_weight, d_fc1_output, d_total_tokens, num_rows,
+                args.inter_size, args.hidden_size, args.num_experts, sm_count, stream);
+            if (!ok)
+            {
+                std::fprintf(stderr, "No valid fused config found for FC1 (profiling).\n");
+                return 1;
+            }
         }
         else
         {
@@ -651,6 +912,16 @@ int main(int argc, char** argv)
         {
             fc2_cfg = args.forced_config;
         }
+        else if (args.profile)
+        {
+            bool ok = profile_select_fc2(fc2_cfg, d_fc2_input, d_fc2_weight, d_fc2_output, d_total_tokens, num_rows,
+                args.hidden_size, args.inter_size, args.num_experts, sm_count, stream);
+            if (!ok)
+            {
+                std::fprintf(stderr, "No valid fused config found for FC2 (profiling).\n");
+                return 1;
+            }
+        }
         else
         {
             bool ok = tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_select_config_fc2(fc2_cfg,
@@ -666,18 +937,29 @@ int main(int argc, char** argv)
             fc2_cfg.tile_k, fc2_cfg.stages);
     }
 
+    float fc1_ms = 0.0f;
+    float fc2_ms = 0.0f;
+
     if (args.run_fc1)
     {
-        tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc1_swiglu_fp16_with_config(d_input, d_fc1_weight,
-            nullptr, true, d_fc1_output, d_total_tokens, num_rows, args.inter_size, args.hidden_size, args.num_experts,
-            sm_count, stream, nullptr, fc1_cfg);
+        auto run_fc1_once = [&]()
+        {
+            tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc1_swiglu_fp16_with_config(d_input, d_fc1_weight,
+                nullptr, true, d_fc1_output, d_total_tokens, num_rows, args.inter_size, args.hidden_size,
+                args.num_experts, sm_count, stream, nullptr, fc1_cfg);
+        };
+        fc1_ms = benchmark_ms(run_fc1_once, args.warmup, args.iters, stream);
     }
 
     if (args.run_fc2)
     {
-        tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc2_identity_fp16_with_config(d_fc2_input,
-            d_fc2_weight, nullptr, true, d_fc2_output, d_total_tokens, num_rows, args.hidden_size, args.inter_size,
-            args.num_experts, sm_count, stream, nullptr, fc2_cfg);
+        auto run_fc2_once = [&]()
+        {
+            tensorrt_llm::kernels::cutlass_kernels_oss::sm80_fused_moe_fc2_identity_fp16_with_config(d_fc2_input,
+                d_fc2_weight, nullptr, true, d_fc2_output, d_total_tokens, num_rows, args.hidden_size, args.inter_size,
+                args.num_experts, sm_count, stream, nullptr, fc2_cfg);
+        };
+        fc2_ms = benchmark_ms(run_fc2_once, args.warmup, args.iters, stream);
     }
 
     tensorrt_llm::common::check_cuda_error(cudaStreamSynchronize(stream));
@@ -687,75 +969,89 @@ int main(int argc, char** argv)
 
     if (args.run_fc1)
     {
-        size_t const copy_elems = do_verify ? fc1_output_elems : std::min<size_t>(fc1_output_elems, 1024);
-        h_fc1_out.resize(copy_elems);
-        tensorrt_llm::common::check_cuda_error(cudaMemcpy(
-            h_fc1_out.data(), d_fc1_output, sizeof(cutlass::half_t) * h_fc1_out.size(), cudaMemcpyDeviceToHost));
-        if (!do_verify)
-        {
-            std::printf("fc1 checksum=%.6f\n", checksum_first(h_fc1_out.data(), h_fc1_out.size()));
-        }
+        std::printf("Avg FC1 kernel time: %.3f us (%d iters, %d warmup)\n",
+            (fc1_ms * 1000.0f) / static_cast<float>(args.iters), args.iters, args.warmup);
     }
     if (args.run_fc2)
     {
-        size_t const copy_elems = do_verify ? fc2_output_elems : std::min<size_t>(fc2_output_elems, 1024);
-        h_fc2_out.resize(copy_elems);
-        tensorrt_llm::common::check_cuda_error(cudaMemcpy(
-            h_fc2_out.data(), d_fc2_output, sizeof(cutlass::half_t) * h_fc2_out.size(), cudaMemcpyDeviceToHost));
-        if (!do_verify)
-        {
-            std::printf("fc2 checksum=%.6f\n", checksum_first(h_fc2_out.data(), h_fc2_out.size()));
-        }
+        std::printf("Avg FC2 kernel time: %.3f us (%d iters, %d warmup)\n",
+            (fc2_ms * 1000.0f) / static_cast<float>(args.iters), args.iters, args.warmup);
     }
 
-    if (do_verify)
+    if (!args.ncu_mode)
     {
-        std::vector<float> fc1_ref_fp32;
-        std::vector<cutlass::half_t> fc1_ref_half;
-        std::vector<float> fc2_ref_fp32;
-
         if (args.run_fc1)
         {
-            fc1_reference(fc1_ref_fp32, fc1_ref_half, h_expanded_input, h_fc1_weight, total_tokens_including_expert,
-                args.num_experts, num_rows, args.inter_size, args.hidden_size);
-
-            std::vector<float> fc1_ref_fp16(fc1_ref_half.size());
-            for (size_t i = 0; i < fc1_ref_half.size(); ++i)
+            size_t const copy_elems = do_verify ? fc1_output_elems : std::min<size_t>(fc1_output_elems, 1024);
+            h_fc1_out.resize(copy_elems);
+            tensorrt_llm::common::check_cuda_error(cudaMemcpy(
+                h_fc1_out.data(), d_fc1_output, sizeof(cutlass::half_t) * h_fc1_out.size(), cudaMemcpyDeviceToHost));
+            if (!do_verify)
             {
-                fc1_ref_fp16[i] = static_cast<float>(fc1_ref_half[i]);
+                std::printf("fc1 checksum=%.6f\n", checksum_first(h_fc1_out.data(), h_fc1_out.size()));
             }
-
-            find_nonfinite_half(h_fc1_out.data(), h_fc1_out.size(), "fc1_gpu");
-            find_nonfinite_float(fc1_ref_fp16.data(), fc1_ref_fp16.size(), "fc1_ref");
-            DiffStats stats = compare_half_to_float(h_fc1_out.data(), fc1_ref_fp16.data(), h_fc1_out.size());
-            float const abs_tol = 5e-2f;
-            float const rel_tol = 5e-2f;
-            bool const pass = (stats.max_abs <= abs_tol) || (stats.max_rel <= rel_tol);
-            std::printf("fc1 verify: max_abs=%.6f max_rel=%.6f %s\n", stats.max_abs, stats.max_rel,
-                pass ? "PASS" : "FAIL");
         }
-
         if (args.run_fc2)
         {
-            std::vector<cutlass::half_t> const& fc2_input = args.run_fc1 ? h_fc1_out : h_fc2_input;
-            fc2_reference(fc2_ref_fp32, fc2_input, h_fc2_weight, total_tokens_including_expert, args.num_experts,
-                num_rows, args.hidden_size, args.inter_size);
-
-            std::vector<float> fc2_ref_fp16(fc2_ref_fp32.size());
-            for (size_t i = 0; i < fc2_ref_fp32.size(); ++i)
+            size_t const copy_elems = do_verify ? fc2_output_elems : std::min<size_t>(fc2_output_elems, 1024);
+            h_fc2_out.resize(copy_elems);
+            tensorrt_llm::common::check_cuda_error(cudaMemcpy(
+                h_fc2_out.data(), d_fc2_output, sizeof(cutlass::half_t) * h_fc2_out.size(), cudaMemcpyDeviceToHost));
+            if (!do_verify)
             {
-                cutlass::half_t hval = cutlass::half_t(fc2_ref_fp32[i]);
-                fc2_ref_fp16[i] = static_cast<float>(hval);
+                std::printf("fc2 checksum=%.6f\n", checksum_first(h_fc2_out.data(), h_fc2_out.size()));
+            }
+        }
+
+        if (do_verify)
+        {
+            std::vector<float> fc1_ref_fp32;
+            std::vector<cutlass::half_t> fc1_ref_half;
+            std::vector<float> fc2_ref_fp32;
+
+            if (args.run_fc1)
+            {
+                fc1_reference(fc1_ref_fp32, fc1_ref_half, h_expanded_input, h_fc1_weight, total_tokens_including_expert,
+                    args.num_experts, num_rows, args.inter_size, args.hidden_size);
+
+                std::vector<float> fc1_ref_fp16(fc1_ref_half.size());
+                for (size_t i = 0; i < fc1_ref_half.size(); ++i)
+                {
+                    fc1_ref_fp16[i] = static_cast<float>(fc1_ref_half[i]);
+                }
+
+                find_nonfinite_half(h_fc1_out.data(), h_fc1_out.size(), "fc1_gpu");
+                find_nonfinite_float(fc1_ref_fp16.data(), fc1_ref_fp16.size(), "fc1_ref");
+                DiffStats stats = compare_half_to_float(h_fc1_out.data(), fc1_ref_fp16.data(), h_fc1_out.size());
+                float const abs_tol = 5e-2f;
+                float const rel_tol = 5e-2f;
+                bool const pass = (stats.max_abs <= abs_tol) || (stats.max_rel <= rel_tol);
+                std::printf("fc1 verify: max_abs=%.6f max_rel=%.6f %s\n", stats.max_abs, stats.max_rel,
+                    pass ? "PASS" : "FAIL");
             }
 
-            find_nonfinite_half(h_fc2_out.data(), h_fc2_out.size(), "fc2_gpu");
-            find_nonfinite_float(fc2_ref_fp16.data(), fc2_ref_fp16.size(), "fc2_ref");
-            DiffStats stats = compare_half_to_float(h_fc2_out.data(), fc2_ref_fp16.data(), h_fc2_out.size());
-            float const abs_tol = 5e-2f;
-            float const rel_tol = 5e-2f;
-            bool const pass = (stats.max_abs <= abs_tol) || (stats.max_rel <= rel_tol);
-            std::printf("fc2 verify: max_abs=%.6f max_rel=%.6f %s\n", stats.max_abs, stats.max_rel,
-                pass ? "PASS" : "FAIL");
+            if (args.run_fc2)
+            {
+                std::vector<cutlass::half_t> const& fc2_input = args.run_fc1 ? h_fc1_out : h_fc2_input;
+                fc2_reference(fc2_ref_fp32, fc2_input, h_fc2_weight, total_tokens_including_expert, args.num_experts,
+                    num_rows, args.hidden_size, args.inter_size);
+
+                std::vector<float> fc2_ref_fp16(fc2_ref_fp32.size());
+                for (size_t i = 0; i < fc2_ref_fp32.size(); ++i)
+                {
+                    cutlass::half_t hval = cutlass::half_t(fc2_ref_fp32[i]);
+                    fc2_ref_fp16[i] = static_cast<float>(hval);
+                }
+
+                find_nonfinite_half(h_fc2_out.data(), h_fc2_out.size(), "fc2_gpu");
+                find_nonfinite_float(fc2_ref_fp16.data(), fc2_ref_fp16.size(), "fc2_ref");
+                DiffStats stats = compare_half_to_float(h_fc2_out.data(), fc2_ref_fp16.data(), h_fc2_out.size());
+                float const abs_tol = 5e-2f;
+                float const rel_tol = 5e-2f;
+                bool const pass = (stats.max_abs <= abs_tol) || (stats.max_rel <= rel_tol);
+                std::printf("fc2 verify: max_abs=%.6f max_rel=%.6f %s\n", stats.max_abs, stats.max_rel,
+                    pass ? "PASS" : "FAIL");
+            }
         }
     }
 
